@@ -31,10 +31,10 @@ provider aws {
 
 variable pull_secret {
   type = string
-  default = file("pull-secret.txt")
+  default = ""
 }
 
 variable ssh_key {
   type = string
-  default = file("~/.ssh/id_rsa.pub")
+  default = ""
 }
