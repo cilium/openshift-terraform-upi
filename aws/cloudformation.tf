@@ -66,6 +66,7 @@ resource "aws_s3_bucket_policy" "cluster_boostrap_inginition_bucket" {
 }
 
 resource "aws_s3_bucket_object" "cluster_boostrap_inginition_object" {
+  depends_on = [ null_resource.ignition_configs ]
   key    = "bootstrap.ign"
   bucket = aws_s3_bucket.cluster_boostrap_inginition_bucket.id
   source = format("%s/bootstrap.ign", var.cluster_name)
