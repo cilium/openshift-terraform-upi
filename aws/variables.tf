@@ -1,3 +1,8 @@
+variable cilium_version {
+  type = string
+  default = "1.9.4"
+}
+
 variable cluster_name {
   type = string
   default = "test-1"
@@ -30,6 +35,16 @@ variable ssh_key {
   type = string
   default = ""
   sensitive = true
+}
+
+variable openshift_distro {
+  type = string
+  default = "ocp"
+}
+
+variable openshift_version {
+  type = string
+  default = "4.7.0"
 }
 
 variable aws_region {

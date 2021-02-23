@@ -43,8 +43,25 @@ resource local_file install_config {
   
 }
 
+resource null_resource get_openshift_install {
+  triggers = {
+    openshift_distro = var.openshift_distro
+    openshift_version = var.openshift_version
+  }
+
+  provisioner "local-exec" {
+    command = "./get-openshift-install.sh ${var.openshift_distro} ${var.openshift_version}"
+  }
+}
+
 resource null_resource manifests {
-  depends_on = [ local_file.install_config ]
+  depends_on = [ local_file.install_config, null_resource.get_openshift_install ]
+
+  triggers = {
+    openshift_distro = var.openshift_distro
+    openshift_version = var.openshift_version
+    install_config = local_file.install_config.id
+  }
 
   provisioner "local-exec" {
     command = "./openshift-install-create-manifests.sh ${var.cluster_name}"
@@ -52,15 +69,25 @@ resource null_resource manifests {
 }
 
 resource null_resource cilium_manifests {
-  depends_on = [ null_resource.manifests ]
+  depends_on = [ null_resource.manifests, null_resource.get_openshift_install ]
+
+  triggers = {
+    cilium_version = var.cilium_version
+    manifests = null_resource.manifests.id
+  }
 
   provisioner "local-exec" {
-    command = format("cp %s/manifests/cilium.v1.9.3/* %s/manifests", local.cilium_olm, var.cluster_name)
+    command = format("cp %s/manifests/cilium.v${var.cilium_version}/* %s/manifests", local.cilium_olm, var.cluster_name)
   }
 }
 
 resource null_resource ignition_configs {
-  depends_on = [ null_resource.cilium_manifests ]
+  depends_on = [ null_resource.cilium_manifests, null_resource.get_openshift_install ]
+
+  triggers = {
+    manifests = null_resource.manifests.id
+    cilium_manifests = null_resource.cilium_manifests.id
+  }
 
   provisioner "local-exec" {
     command = "./openshift-install-create-ignition-configs.sh ${var.cluster_name}"
