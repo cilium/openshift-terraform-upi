@@ -47,8 +47,7 @@ resource null_resource manifests {
   depends_on = [ local_file.install_config ]
 
   provisioner "local-exec" {
-    # openshift-install remove the install-config file, so we need to write it out separately, to prevent terraform from always re-generating it
-    command = format("mkdir %s && cp %s.install-config.yaml %s && /Users/ilya/Code/openshift/openshift-install-ocp-4.6.12 create manifests --dir %s", var.cluster_name, var.cluster_name, var.cluster_name, var.cluster_name)
+    command = "./openshift-install-create-manifests.sh ${var.cluster_name}"
   }
 }
 
@@ -64,7 +63,7 @@ resource null_resource ignition_configs {
   depends_on = [ null_resource.cilium_manifests ]
 
   provisioner "local-exec" {
-    command = format("/Users/ilya/Code/openshift/openshift-install-ocp-4.6.12 create ignition-configs --dir %s", var.cluster_name)
+    command = "./openshift-install-create-ignition-configs.sh ${var.cluster_name}"
   }
 }
 
