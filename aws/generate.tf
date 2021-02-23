@@ -35,8 +35,8 @@ resource local_file install_config {
       }
     }
     publish = "External"
-    pullSecret = file("pull-secret.txt")
-    sshKey = file("~/.ssh/id_rsa.pub")
+    pullSecret = var.pull_secret
+    sshKey = var.ssh_key
   })
 
   filename = format("%s.install-config.yaml", var.cluster_name)

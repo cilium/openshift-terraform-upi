@@ -29,3 +29,12 @@ provider aws {
   region = var.aws_region
 }
 
+variable pull_secret {
+  type = string
+  default = file("pull-secret.txt")
+}
+
+variable ssh_key {
+  type = string
+  default = file("~/.ssh/id_rsa.pub")
+}
