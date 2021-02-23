@@ -135,7 +135,7 @@ resource aws_cloudformation_stack cluster_master_nodes {
   parameters = {
     InfrastructureName = local.infrastructure_name
 
-    IgnitionLocation = aws_cloudformation_stack.cluster_infra.outputs["ApiServerDnsName"]
+    IgnitionLocation = format("https://%s:22623/config/master", aws_cloudformation_stack.cluster_infra.outputs["ApiServerDnsName"])
 
     Master0Subnet = element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 0)
     Master1Subnet = element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 1)
