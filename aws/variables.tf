@@ -20,21 +20,35 @@ variable rhcos_ami {
   default = "ami-0b4024fa5cb2588bd"
 }
 
-variable aws_region {
-  type = string
-  default = "eu-west-1"
-}
-
-provider aws {
-  region = var.aws_region
-}
-
 variable pull_secret {
   type = string
   default = ""
+  sensitive = true
 }
 
 variable ssh_key {
   type = string
   default = ""
+  sensitive = true
+}
+
+variable aws_region {
+  type = string
+  default = "eu-west-1"
+}
+
+variable aws_access_key {
+  type = string
+  sensitive = true
+}
+
+variable aws_secret_key {
+  type = string
+  sensitive = true
+}
+
+provider aws {
+  region = var.aws_region
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
 }
