@@ -140,7 +140,7 @@ resource aws_cloudformation_stack cluster_master_nodes {
     Master1Subnet = element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 1)
     Master2Subnet = element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 2)
 
-    MasterSecurityGroupId = aws_cloudformation_stack.cluster_security.outputs["WorkerSecurityGroupId"]
+    MasterSecurityGroupId = aws_cloudformation_stack.cluster_security.outputs["MasterSecurityGroupId"]
 
     RhcosAmi = var.rhcos_ami
 
