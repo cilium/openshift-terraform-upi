@@ -3,8 +3,8 @@
 # Copyright 2021 Authors of Cilium
 # SPDX-License-Identifier: Apache-2.0
 
-# this script downloads appropriate openshift-install binary based on given distro
-# and version; runtime downloads are prefer because it wouldn't be feasible to include
+# this script downloads appropriate openshift-install binary based on the given distro
+# and version; runtime downloads are preferred because it wouldn't be feasible to include
 # all possible versions in the terraform executor image
 
 set -o errexit
