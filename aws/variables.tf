@@ -54,12 +54,12 @@ variable aws_region {
 
 variable aws_access_key {
   type = string
-  sensitive = true
+  # sensitive = true
 }
 
 variable aws_secret_key {
   type = string
-  sensitive = true
+  # sensitive = true
 }
 
 provider aws {
