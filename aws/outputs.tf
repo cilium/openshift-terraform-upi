@@ -3,11 +3,11 @@ output cluster_name {
 }
 
 output cluster_kubeconfig {
-  value = base64encode(data.local_file.kubeconfig.sensitive_content)
+  value = data.local_file.kubeconfig.content_base64
   sensitive = true
 }
 
 output cluster_kubeconfig_kubeadmin_password {
-  value = data.local_file.kubeadmin_password.sensitive_content
+  value = data.local_file.kubeadmin_password.content
   sensitive = true
 }
