@@ -3,7 +3,7 @@ module cloudformation_templates {
 }
 
 module cilium_olm {
-  source = "git::https://github.com/cilium/cilium-olm.git?ref=f6440a3d9ea3656fd976241ba2d6afb556e2dd7b"
+  source = "git::https://github.com/cilium/cilium-olm.git?ref=2078a3227917b915153f4963663d38123f62c475"
 }
 
 locals {
