@@ -21,7 +21,7 @@ mkdir -p "${script_dir}/bin"
 
 if test -x "${binary}" ; then
   echo "${binary} exists"
-  "/${binary}" version
+  "${binary}" version
   exit
 fi
 
