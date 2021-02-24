@@ -145,8 +145,8 @@ resource aws_cloudformation_stack cluster_master_nodes {
 
     RhcosAmi = var.rhcos_ami
 
-    PrivateHostedZoneId = var.hosted_zone_id
-    PrivateHostedZoneName = var.hosted_zone_name
+    PrivateHostedZoneId = aws_cloudformation_stack.cluster_infra.outputs["PrivateHostedZoneId"]
+    PrivateHostedZoneName = format("%s.%s", var.cluster_name, var.hosted_zone_name)
 
     CertificateAuthorities = local.master_ca
 
