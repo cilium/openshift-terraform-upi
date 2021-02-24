@@ -1,8 +1,11 @@
 module cloudformation_templates {
+  # it assumed that these CloudFormation templates are broadly compatible with any OKD or OCP version, so the revision here
+  # should be just some recent commit and there is no need to map it to openshift_version/openshift_distro
   source = "git::https://github.com/openshift/installer.git//upi/aws/cloudformation?ref=a6597edd93133f88bb5280a3cd0660f25e8d77e9"
 }
 
 module cilium_olm {
+  # this needs to be kept up-to-date as new Cilium releases get added to the repo
   source = "git::https://github.com/cilium/cilium-olm.git?ref=2078a3227917b915153f4963663d38123f62c475"
 }
 
