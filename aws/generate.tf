@@ -49,7 +49,7 @@ resource null_resource get_openshift_install {
   }
 
   provisioner "local-exec" {
-    command = "./get-openshift-install.sh ${var.openshift_distro} ${var.openshift_version}"
+    command = "${path.cwd}/get-openshift-install.sh ${var.openshift_distro} ${var.openshift_version}"
   }
 }
 
@@ -63,7 +63,11 @@ resource null_resource manifests {
   }
 
   provisioner "local-exec" {
-    command = "./openshift-install-create-manifests.sh ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.install_config_path}"
+    command = "${path.cwd}/openshift-install-create-manifests.sh ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.install_config_path}"
+    environment = {
+      AWS_ACCESS_KEY_ID = var.aws_access_key
+      AWS_SECRET_ACCESS_KEY = var.aws_secret_key
+    }
   }
 }
 
@@ -76,7 +80,7 @@ resource null_resource cilium_manifests {
   }
 
   provisioner "local-exec" {
-    command = format("cp %s/manifests/cilium.v${var.cilium_version}/* %s/manifests", local.cilium_olm, local.config_dir)
+    command = "cp ${local.cilium_olm}/manifests/cilium.v${var.cilium_version}/* ${local.config_dir}/manifests"
   }
 }
 
@@ -89,7 +93,11 @@ resource null_resource ignition_configs {
   }
 
   provisioner "local-exec" {
-    command = "./openshift-install-create-ignition-configs.sh ${var.openshift_distro} ${var.openshift_version} ${local.config_dir}"
+    command = "${path.cwd}/openshift-install-create-ignition-configs.sh ${var.openshift_distro} ${var.openshift_version} ${local.config_dir}"
+    environment = {
+      AWS_ACCESS_KEY_ID = var.aws_access_key
+      AWS_SECRET_ACCESS_KEY = var.aws_secret_key
+    }
   }
 }
 
