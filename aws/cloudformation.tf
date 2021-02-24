@@ -1,13 +1,13 @@
 # docs: https://docs.openshift.com/container-platform/4.6/installing/installing_aws/installing-aws-user-infra.html
 
 resource aws_cloudformation_stack vpc {
-  name = format("openshift-ci-%s-vpc", var.cluster_name)
+  name = format("openshift-ci-%s-vpc", local.infrastructure_name)
 
   template_body = file(format("%s/01_vpc.yaml", local.cloudformation_templates))
 }
 
 resource aws_cloudformation_stack cluster_infra {
-  name = format("openshift-ci-%s-cluster-infra", var.cluster_name)
+  name = format("openshift-ci-%s-cluster-infra", local.infrastructure_name)
 
   template_body = file(format("%s/02_cluster_infra.yaml", local.cloudformation_templates))
 
@@ -27,7 +27,7 @@ resource aws_cloudformation_stack cluster_infra {
 }
  
 resource aws_cloudformation_stack cluster_security {
-  name = format("openshift-ci-%s-cluster-security", var.cluster_name)
+  name = format("openshift-ci-%s-cluster-security", local.infrastructure_name)
 
   template_body = file(format("%s/03_cluster_security.yaml", local.cloudformation_templates))
 
@@ -42,7 +42,7 @@ resource aws_cloudformation_stack cluster_security {
 }
 
 resource aws_s3_bucket cluster_boostrap_inginition_bucket {
-  bucket = format("openshift-cilium-ci-%s-cluster-bootstrap", var.cluster_name)
+  bucket = format("openshift-cilium-ci-%s-cluster-bootstrap", local.infrastructure_name)
   acl    = "private"
 }
 
@@ -98,7 +98,7 @@ resource "aws_vpc_endpoint" "cluster_boostrap_inginition_bucket" {
 }
 
 resource aws_cloudformation_stack cluster_bootstrap {
-  name = format("openshift-ci-%s-cluster-bootstrap", var.cluster_name)
+  name = format("openshift-ci-%s-cluster-bootstrap", local.infrastructure_name)
 
   depends_on = [ aws_s3_bucket_object.cluster_boostrap_inginition_object ]
 
@@ -112,7 +112,7 @@ resource aws_cloudformation_stack cluster_bootstrap {
     PublicSubnet = element(split(",", aws_cloudformation_stack.vpc.outputs["PublicSubnetIds"]), 0)
     MasterSecurityGroupId = aws_cloudformation_stack.cluster_security.outputs["MasterSecurityGroupId"]
     VpcId = aws_cloudformation_stack.vpc.outputs["VpcId"]
-    BootstrapIgnitionLocation = format("s3://openshift-cilium-ci-%s-cluster-bootstrap/bootstrap.ign", var.cluster_name)
+    BootstrapIgnitionLocation = format("s3://openshift-cilium-ci-%s-cluster-bootstrap/bootstrap.ign", local.infrastructure_name)
 
     RhcosAmi = var.rhcos_ami
 
@@ -125,7 +125,7 @@ resource aws_cloudformation_stack cluster_bootstrap {
 }
 
 resource aws_cloudformation_stack cluster_master_nodes {
-  name = format("openshift-ci-%s-cluster-master-nodes", var.cluster_name)
+  name = format("openshift-ci-%s-cluster-master-nodes", local.infrastructure_name)
 
   # force dependency to avoid target group errors
   depends_on = [ aws_cloudformation_stack.cluster_bootstrap ]
