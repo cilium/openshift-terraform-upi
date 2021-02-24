@@ -7,6 +7,15 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-cluster_name="${1}"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-/Users/ilya/Code/openshift/openshift-install-ocp-4.6.12 create ignition-configs --dir "${cluster_name}"
+distro="${1}"
+version="${2}"
+
+cluster_name="${3}"
+
+binary="${script_dir}/bin/openshift-install-${distro}-${version}"
+
+config_dir="${script_dir}/config/${cluster_name}"
+
+"$[binary}" create ignition-configs --dir "${config_dir}"

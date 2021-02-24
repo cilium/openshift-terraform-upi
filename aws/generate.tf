@@ -39,8 +39,7 @@ resource local_file install_config {
     sshKey = var.ssh_key
   })
 
-  filename = format("%s.install-config.yaml", var.cluster_name)
-  
+  filename = local.install_config_path
 }
 
 resource null_resource get_openshift_install {
@@ -64,7 +63,7 @@ resource null_resource manifests {
   }
 
   provisioner "local-exec" {
-    command = "./openshift-install-create-manifests.sh ${var.cluster_name}"
+    command = "./openshift-install-create-manifests.sh ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.install_config_path}"
   }
 }
 
@@ -77,7 +76,7 @@ resource null_resource cilium_manifests {
   }
 
   provisioner "local-exec" {
-    command = format("cp %s/manifests/cilium.v${var.cilium_version}/* %s/manifests", local.cilium_olm, var.cluster_name)
+    command = format("cp %s/manifests/cilium.v${var.cilium_version}/* %s/manifests", local.cilium_olm, local.config_dir)
   }
 }
 
@@ -90,29 +89,32 @@ resource null_resource ignition_configs {
   }
 
   provisioner "local-exec" {
-    command = "./openshift-install-create-ignition-configs.sh ${var.cluster_name}"
+    command = "./openshift-install-create-ignition-configs.sh ${var.openshift_distro} ${var.openshift_version} ${local.config_dir}"
   }
 }
 
 data local_file metadata_json {
   depends_on = [ null_resource.ignition_configs ]
 
-  filename = format("%s/metadata.json", var.cluster_name)
+  filename = format("%s/metadata.json", local.config_dir)
 }
 
 data local_file master_ign {
   depends_on = [ null_resource.ignition_configs ]
 
-  filename = format("%s/master.ign", var.cluster_name)
+  filename = format("%s/master.ign", local.config_dir)
 }
 
 data local_file worker_ign {
   depends_on = [ null_resource.ignition_configs ]
 
-  filename = format("%s/worker.ign", var.cluster_name)
+  filename = format("%s/worker.ign", local.config_dir)
 }
 
 locals {
+  config_dir = format("%s/config/%s", abspath(path.module), var.cluster_name)
+  install_config_path = format("%s/config/%s.install-config.yaml", abspath(path.module), var.cluster_name)
+
   infrastructure_name = jsondecode(data.local_file.metadata_json.content).infraID
   worker_ca = jsondecode(data.local_file.master_ign.content).ignition.security.tls.certificateAuthorities[0].source
   master_ca = jsondecode(data.local_file.worker_ign.content).ignition.security.tls.certificateAuthorities[0].source

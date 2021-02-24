@@ -42,7 +42,7 @@ resource aws_cloudformation_stack cluster_security {
 }
 
 resource aws_s3_bucket cluster_boostrap_inginition_bucket {
-  bucket = format("openshift-cilium-ci-%s-cluster-bootstrap", var.cluster_name)
+  bucket = format("openshift-cilium-ci-%s-cluster-bootstrap", var.config_dir)
   acl    = "private"
 }
 
@@ -69,7 +69,7 @@ resource "aws_s3_bucket_object" "cluster_boostrap_inginition_object" {
   depends_on = [ null_resource.ignition_configs ]
   key    = "bootstrap.ign"
   bucket = aws_s3_bucket.cluster_boostrap_inginition_bucket.id
-  source = format("%s/bootstrap.ign", var.cluster_name)
+  source = format("%s/bootstrap.ign", local.config_dir)
 }
 
 # VPC Endpoint is being used to enable EC2 instances to access the bucket and avoid having to either

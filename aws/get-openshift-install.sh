@@ -16,8 +16,8 @@ binary="${script_dir}/bin/openshift-install-${distro}-${version}"
 mkdir -p "${script_dir}/bin"
 
 if test -x "${binary}" ; then
-  echo "already have ${binary}"
-  "./${binary}" version
+  echo "${binary} exists"
+  "/${binary}" version
   exit
 fi
 
@@ -42,5 +42,5 @@ mv openshift-install "${binary}"
 cd "${script_dir}"
 rm -rf "${temp_dir}"
 
-echo "installed ${binary}"
-"./${binary}" version
+echo "${binary} installed"
+"${binary}" version

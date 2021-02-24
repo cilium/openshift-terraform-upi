@@ -7,10 +7,20 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-cluster_name="${1}"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-rm -rf "${cluster_name}"
-mkdir "${cluster_name}"
-cp "${cluster_name}.install-config.yaml" "${cluster_name}/install-config.yaml"
+distro="${1}"
+version="${2}"
 
-/Users/ilya/Code/openshift/openshift-install-ocp-4.6.12 create manifests --dir "${cluster_name}"
+config_dir="${3}"
+
+install_config_path="${4}"
+
+binary="${script_dir}/bin/openshift-install-${distro}-${version}"
+
+rm -rf "${config_dir}"
+mkdir "${config_dir}"
+
+cp "${install_config_path}" "${config_dir}/install-config.yaml"
+
+"${binary}" create manifests --dir "${config_dir}"
