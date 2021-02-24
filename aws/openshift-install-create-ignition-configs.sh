@@ -12,10 +12,8 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 distro="${1}"
 version="${2}"
 
-cluster_name="${3}"
+config_dir="${3}"
 
 binary="${script_dir}/bin/openshift-install-${distro}-${version}"
 
-config_dir="${script_dir}/config/${cluster_name}"
-
-"$[binary}" create ignition-configs --dir "${config_dir}"
+"${binary}" create ignition-configs --dir "${config_dir}"
