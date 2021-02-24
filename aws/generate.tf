@@ -119,6 +119,18 @@ data local_file worker_ign {
   filename = format("%s/worker.ign", local.config_dir)
 }
 
+data local_file kubeconfig {
+  depends_on = [ null_resource.ignition_configs ]
+
+  filename = format("%s/auth/kubeconfig", local.config_dir)
+}
+
+data local_file kubeadmin_password {
+  depends_on = [ null_resource.ignition_configs ]
+
+  filename = format("%s/auth/kubeadmin-password", local.config_dir)
+}
+
 locals {
   config_dir = format("%s/config/%s", abspath(path.module), var.cluster_name)
   install_config_path = format("%s/config/%s.install-config.yaml", abspath(path.module), var.cluster_name)
