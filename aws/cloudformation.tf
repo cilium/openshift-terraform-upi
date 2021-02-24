@@ -42,7 +42,7 @@ resource aws_cloudformation_stack cluster_security {
 }
 
 resource aws_s3_bucket cluster_boostrap_inginition_bucket {
-  bucket = format("openshift-cilium-ci-%s-cluster-bootstrap", var.config_dir)
+  bucket = format("openshift-cilium-ci-%s-cluster-bootstrap", local.config_dir)
   acl    = "private"
 }
 
