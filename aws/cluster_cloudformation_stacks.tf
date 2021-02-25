@@ -41,62 +41,6 @@ resource aws_cloudformation_stack cluster_security {
   }
 }
 
-resource aws_s3_bucket cluster_boostrap_inginition_bucket {
-  bucket = format("openshift-cilium-ci-%s-cluster-bootstrap", local.infrastructure_name)
-  acl    = "private"
-}
-
-resource "aws_s3_bucket_policy" "cluster_boostrap_inginition_bucket" {
-  bucket = aws_s3_bucket.cluster_boostrap_inginition_bucket.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = {
-      Effect = "Allow"
-      Principal = "*"
-      Action = "s3:GetObject"
-      Resource = format("%s/*", aws_s3_bucket.cluster_boostrap_inginition_bucket.arn)
-      Condition: {
-        StringEquals: {
-          "aws:sourceVpce": aws_vpc_endpoint.cluster_boostrap_inginition_bucket.id
-        }
-      }
-    }
-  })
-}
-
-resource "aws_s3_bucket_object" "cluster_boostrap_inginition_object" {
-  depends_on = [ null_resource.ignition_configs ]
-  key    = "bootstrap.ign"
-  bucket = aws_s3_bucket.cluster_boostrap_inginition_bucket.id
-  source = format("%s/bootstrap.ign", local.config_dir)
-}
-
-# VPC Endpoint is being used to enable EC2 instances to access the bucket and avoid having to either
-# fork CloudFormation templates or make the bucket publically accessible
-resource "aws_vpc_endpoint" "cluster_boostrap_inginition_bucket" {
-  vpc_id       = aws_cloudformation_stack.vpc.outputs["VpcId"]
-  service_name = format("com.amazonaws.%s.s3", var.aws_region)
-
-  # vpc_endpoint_type = "Interface"
-
-  # security_group_ids = [
-  #   aws_cloudformation_stack.cluster_security.outputs["MasterSecurityGroupId"]
-  # ]
-
-  # subnet_ids = [ element(split(",", aws_cloudformation_stack.vpc.outputs["PublicSubnetIds"]), 0) ]
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = {
-      Effect = "Allow"
-      Principal = "*"
-      Action = "s3:GetObject"
-      Resource = format("%s/*", aws_s3_bucket.cluster_boostrap_inginition_bucket.arn)
-    }
-  })
-}
-
 resource aws_cloudformation_stack cluster_bootstrap {
   name = format("openshift-ci-%s-cluster-bootstrap", local.infrastructure_name)
 
@@ -110,7 +54,7 @@ resource aws_cloudformation_stack cluster_bootstrap {
     InfrastructureName = local.infrastructure_name
 
     PublicSubnet = element(split(",", aws_cloudformation_stack.vpc.outputs["PublicSubnetIds"]), 0)
-    MasterSecurityGroupId = aws_cloudformation_stack.cluster_security.outputs["MasterSecurityGroupId"]
+    MasterSecurityGroupId = local.master_sg
     VpcId = aws_cloudformation_stack.vpc.outputs["VpcId"]
     BootstrapIgnitionLocation = format("s3://openshift-cilium-ci-%s-cluster-bootstrap/bootstrap.ign", local.infrastructure_name)
 
@@ -141,7 +85,7 @@ resource aws_cloudformation_stack cluster_master_nodes {
     Master1Subnet = element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 1)
     Master2Subnet = element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 2)
 
-    MasterSecurityGroupId = aws_cloudformation_stack.cluster_security.outputs["MasterSecurityGroupId"]
+    MasterSecurityGroupId = local.master_sg
 
     RhcosAmi = var.rhcos_ami
 
@@ -158,4 +102,9 @@ resource aws_cloudformation_stack cluster_master_nodes {
     InternalApiTargetGroupArn = aws_cloudformation_stack.cluster_infra.outputs["InternalApiTargetGroupArn"]
     InternalServiceTargetGroupArn = aws_cloudformation_stack.cluster_infra.outputs["InternalServiceTargetGroupArn"]
   }
+}
+
+locals {
+  worker_sg = aws_cloudformation_stack.cluster_security.outputs["WorkerSecurityGroupId"]
+  master_sg = aws_cloudformation_stack.cluster_security.outputs["MasterSecurityGroupId"]
 }
