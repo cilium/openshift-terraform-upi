@@ -11,7 +11,7 @@ locals {
   ]
 
   cilium_ingress_rules = flatten([
-    for pair in setproduct(local.cilium_ports, setproduct([local.worker_sg], [local.master_sg])) : [
+    for pair in setproduct(local.cilium_ports, [[local.worker_sg, local.master_sg], [local.master_sg, local.worker_sg]]) : [
       {
         port = pair[0].port
         protocol = pair[0].protocol
