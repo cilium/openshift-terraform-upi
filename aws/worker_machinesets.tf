@@ -66,7 +66,7 @@ resource local_file worker_machinesets {
 
   content = yamlencode(each.value)
 
-  filename = format("%s/config/%s.%s.yaml", local.config_dir, var.cluster_name, each.key)
+  filename = format("%s/config/%s.%s.yaml", abspath(path.module), var.cluster_name, each.key)
 }
 
 locals {
