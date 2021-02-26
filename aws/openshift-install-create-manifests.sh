@@ -24,3 +24,7 @@ mkdir "${config_dir}"
 cp "${install_config_path}" "${config_dir}/install-config.yaml"
 
 "${binary}" create manifests --dir "${config_dir}"
+
+cd "${config_dir}/openshift"
+rm -f 99_openshift-cluster-api_master-machines-*.yaml
+rm -f 99_openshift-cluster-api_worker-machineset-*.yaml

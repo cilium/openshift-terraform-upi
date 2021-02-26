@@ -20,8 +20,8 @@ resource aws_cloudformation_stack cluster_infra {
 
     HostedZoneId = var.hosted_zone_id
     HostedZoneName = var.hosted_zone_name
-    PublicSubnets = aws_cloudformation_stack.vpc.outputs["PublicSubnetIds"]
-    PrivateSubnets = aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]
+    PublicSubnets = local.public_subnets
+    PrivateSubnets = local.private_subnets
     VpcId = aws_cloudformation_stack.vpc.outputs["VpcId"]
   }
 }
@@ -36,7 +36,7 @@ resource aws_cloudformation_stack cluster_security {
   parameters = {
     InfrastructureName = local.infrastructure_name
 
-    PrivateSubnets = aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]
+    PrivateSubnets = local.private_subnets
     VpcId = aws_cloudformation_stack.vpc.outputs["VpcId"]
   }
 }
@@ -53,7 +53,7 @@ resource aws_cloudformation_stack cluster_bootstrap {
   parameters = {
     InfrastructureName = local.infrastructure_name
 
-    PublicSubnet = element(split(",", aws_cloudformation_stack.vpc.outputs["PublicSubnetIds"]), 0)
+    PublicSubnet = element(split(",", local.public_subnets), 0)
     MasterSecurityGroupId = local.master_sg
     VpcId = aws_cloudformation_stack.vpc.outputs["VpcId"]
     BootstrapIgnitionLocation = format("s3://openshift-cilium-ci-%s-cluster-bootstrap/bootstrap.ign", local.infrastructure_name)
@@ -81,11 +81,13 @@ resource aws_cloudformation_stack cluster_master_nodes {
 
     IgnitionLocation = format("https://%s:22623/config/master", aws_cloudformation_stack.cluster_infra.outputs["ApiServerDnsName"])
 
-    Master0Subnet = element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 0)
-    Master1Subnet = element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 1)
-    Master2Subnet = element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 2)
+    Master0Subnet = local.private_subnets_list[0]
+    Master1Subnet = local.private_subnets_list[1]
+    Master2Subnet = local.private_subnets_list[2]
 
     MasterSecurityGroupId = local.master_sg
+
+    MasterInstanceType = var.control_plane_instance_type
 
     RhcosAmi = var.rhcos_ami
 
@@ -107,4 +109,13 @@ resource aws_cloudformation_stack cluster_master_nodes {
 locals {
   worker_sg = aws_cloudformation_stack.cluster_security.outputs["WorkerSecurityGroupId"]
   master_sg = aws_cloudformation_stack.cluster_security.outputs["MasterSecurityGroupId"]
+
+  public_subnets = aws_cloudformation_stack.vpc.outputs["PublicSubnetIds"]
+  private_subnets = aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]
+  private_subnets_list = [
+    # this is needed to ensure list length can be used to determine number of machinesets that will be generated
+    element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 0),
+    element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 1),
+    element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 2),
+  ]
 }

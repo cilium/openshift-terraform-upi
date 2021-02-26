@@ -47,6 +47,36 @@ variable openshift_version {
   default = "4.7.0"
 }
 
+variable compute_instance_type {
+  type = string
+  default = "m5.large"
+}
+
+variable compute_machines_per_az {
+  type = number
+  default = 1
+}
+
+variable compute_root_volume_size {
+  type = number
+  default = 120
+}
+
+variable compute_root_volume_type {
+  type = string
+  default = "gp2"
+}
+
+variable compute_root_volume_iops {
+  type = number
+  default = 0
+}
+
+variable control_plane_instance_type {
+  type = string
+  default = "m5.large"
+}
+
 variable aws_region {
   type = string
   default = "eu-west-1"

@@ -6,18 +6,10 @@ resource local_file install_config {
     baseDomain = var.hosted_zone_name
     compute = [{
       architecture = "amd64"
-      hyperthreading = "Enabled"
       name = "worker"
-      platform = {}
-      replicas = 3
+      # machinesets created by the installer are not valid for UPI
+      replicas = 0
     }]
-    controlPlane = {
-      architecture = "amd64"
-      hyperthreading = "Enabled"
-      name = "master"
-      platform = {}
-      replicas = 3
-    }
     networking = {
       clusterNetwork = [{
         cidr = "10.128.0.0/14"
@@ -85,15 +77,16 @@ resource null_resource cilium_manifests {
 }
 
 resource null_resource ignition_configs {
-  depends_on = [ null_resource.cilium_manifests, null_resource.get_openshift_install ]
+  depends_on = [ null_resource.cilium_manifests, local_file.worker_machinesets, null_resource.get_openshift_install ]
 
   triggers = {
     manifests = null_resource.manifests.id
     cilium_manifests = null_resource.cilium_manifests.id
+    worker_machinesets = join("-", [for file in local_file.worker_machinesets : file.id])
   }
 
   provisioner "local-exec" {
-    command = "${path.cwd}/openshift-install-create-ignition-configs.sh ${var.openshift_distro} ${var.openshift_version} ${local.config_dir}"
+    command = "${path.cwd}/openshift-install-create-ignition-configs.sh ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.worker_machinesets_path}"
     environment = {
       AWS_ACCESS_KEY_ID = var.aws_access_key
       AWS_SECRET_ACCESS_KEY = var.aws_secret_key
@@ -102,7 +95,7 @@ resource null_resource ignition_configs {
 }
 
 data local_file metadata_json {
-  depends_on = [ null_resource.ignition_configs ]
+  depends_on = [ null_resource.manifests ]
 
   filename = format("%s/metadata.json", local.config_dir)
 }
@@ -133,7 +126,7 @@ data local_file kubeadmin_password {
 
 locals {
   config_dir = format("%s/config/%s", abspath(path.module), var.cluster_name)
-  install_config_path = format("%s/config/%s.install-config.yaml", abspath(path.module), var.cluster_name)
+  install_config_path = format("%s/config/%s.install-config.yaml", local.config_dir, var.cluster_name)
 
   infrastructure_name = jsondecode(data.local_file.metadata_json.content).infraID
   worker_ca = jsondecode(data.local_file.master_ign.content).ignition.security.tls.certificateAuthorities[0].source

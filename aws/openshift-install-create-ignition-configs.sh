@@ -14,6 +14,12 @@ version="${2}"
 
 config_dir="${3}"
 
+shift 3
+
+worker_machinesets=("${@}")
+
 binary="${script_dir}/bin/openshift-install-${distro}-${version}"
+
+cp "${worker_machinesets[@]}" "${config_dir}/openshift"
 
 "${binary}" create ignition-configs --dir "${config_dir}"
