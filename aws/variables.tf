@@ -74,7 +74,7 @@ variable compute_root_volume_iops {
 
 variable control_plane_instance_type {
   type = string
-  default = "m5.large"
+  default = "m5.xlarge"
 }
 
 variable aws_region {
