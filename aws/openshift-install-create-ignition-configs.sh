@@ -20,6 +20,8 @@ worker_machinesets=("${@}")
 
 binary="${script_dir}/bin/openshift-install-${distro}-${version}"
 
+# add generated worker machinesets here as it's most convenient
+# having another null_resource for this wouldn't make a lot of sense
 cp "${worker_machinesets[@]}" "${config_dir}/openshift"
 
 "${binary}" create ignition-configs --dir "${config_dir}"
