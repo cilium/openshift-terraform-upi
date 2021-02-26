@@ -94,10 +94,11 @@ resource null_resource ignition_configs {
   }
 }
 
-data local_file metadata_json {
+data local_file openshift_install_state_json {
+  # metadata.json is not generated when the InfraID is needed, so read it from installer state
   depends_on = [ null_resource.manifests ]
 
-  filename = format("%s/metadata.json", local.config_dir)
+  filename = format("%s/.openshift_install_state.json", local.config_dir)
 }
 
 data local_file master_ign {
@@ -128,7 +129,8 @@ locals {
   config_dir = format("%s/config/%s", abspath(path.module), var.cluster_name)
   install_config_path = format("%s/config/%s.install-config.yaml", abspath(path.module), var.cluster_name)
 
-  infrastructure_name = jsondecode(data.local_file.metadata_json.content).infraID
+  infrastructure_name = jsondecode(data.local_file.openshift_install_state_json.content)["*installconfig.ClusterID"]["InfraID"]
+
   worker_ca = jsondecode(data.local_file.master_ign.content).ignition.security.tls.certificateAuthorities[0].source
   master_ca = jsondecode(data.local_file.worker_ign.content).ignition.security.tls.certificateAuthorities[0].source
 }
