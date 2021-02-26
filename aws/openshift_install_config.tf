@@ -86,7 +86,7 @@ resource null_resource ignition_configs {
   }
 
   provisioner "local-exec" {
-    command = "${path.cwd}/openshift-install-create-ignition-configs.sh ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.worker_machinesets_path}"
+    command = "${path.cwd}/openshift-install-create-ignition-configs.sh ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.worker_machinesets_paths}"
     environment = {
       AWS_ACCESS_KEY_ID = var.aws_access_key
       AWS_SECRET_ACCESS_KEY = var.aws_secret_key

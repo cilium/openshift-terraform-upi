@@ -70,5 +70,5 @@ resource local_file worker_machinesets {
 }
 
 locals {
-  worker_machinesets_path = format("%s/config/%s.worker-machineset-*.yaml", abspath(path.module), var.cluster_name)
+  worker_machinesets_paths = join(" ", [ for index, machineset in local.worker_machinesets : format("%s/config/%s.worker-machineset-%s.yaml", abspath(path.module), var.cluster_name, index) ])
 }
