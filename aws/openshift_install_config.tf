@@ -126,7 +126,7 @@ data local_file kubeadmin_password {
 
 locals {
   config_dir = format("%s/config/%s", abspath(path.module), var.cluster_name)
-  install_config_path = format("%s/config/%s.install-config.yaml", local.config_dir, var.cluster_name)
+  install_config_path = format("%s/config/%s.install-config.yaml", abspath(path.module), var.cluster_name)
 
   infrastructure_name = jsondecode(data.local_file.metadata_json.content).infraID
   worker_ca = jsondecode(data.local_file.master_ign.content).ignition.security.tls.certificateAuthorities[0].source
