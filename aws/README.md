@@ -5,6 +5,10 @@ The aim it to delploy CloudFomation templates from the [OpenShift installer repo
 This modules largely relies on [`aws_cloudformation_stack`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudformation_stack),
 with additional resources managed by Terraform directly (e.g. VPC Endpoint for S3 and ingress rules for Cilium ports).
 
+The `openshift-install` binary downlaoded at runtime (based on `openshift_version` and `openshift_distro` parameters, it is used for generating Ignition conigs and manifests.
+
+Cilium manifests are sourced from [Cilium OLM repo](https://github.com/cilium/cilium-olm/).
+
 For up-to-date list of input parameters see [`variables.tf`](variables.tf).
 
 Cannonical outputs `cluster_name` and `cluster_kubeconfig` are exported by this module.
