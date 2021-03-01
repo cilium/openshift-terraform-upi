@@ -7,7 +7,7 @@ output cluster_kubeconfig {
   sensitive = true
 }
 
-output cluster_kubeconfig_kubeadmin_password {
+output cluster_kubeadmin_password {
   value = data.local_file.kubeadmin_password.content
   sensitive = true
 }
