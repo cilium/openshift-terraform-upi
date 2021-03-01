@@ -7,11 +7,11 @@ locals {
       {
         port = 4240
         protocol = "tcp"
-      }
+      },
       {
         port = -1
         protocol = "icmp"
-      }
+      },
   ]
 
   cilium_ingress_rules = flatten([
