@@ -1,5 +1,3 @@
-# docs: https://docs.openshift.com/container-platform/4.6/installing/installing_aws/installing-aws-user-infra.html
-
 resource aws_cloudformation_stack vpc {
   name = format("openshift-ci-%s-vpc", local.infrastructure_name)
 
