@@ -6,7 +6,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: default
-  namespace: kube-system
+  namespace: cilium-test
 roleRef:
 - kind: Role
   name: cilium-test-hostnetwork
