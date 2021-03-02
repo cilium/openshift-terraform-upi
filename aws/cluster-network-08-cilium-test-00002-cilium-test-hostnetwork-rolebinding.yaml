@@ -8,6 +8,6 @@ subjects:
   name: default
   namespace: cilium-test
 roleRef:
-- kind: Role
+  kind: Role
   name: cilium-test-hostnetwork
   apiGroup: rbac.authorization.k8s.io
