@@ -20,6 +20,6 @@ extra_manifests=("${@}")
 
 binary="${script_dir}/bin/openshift-install-${distro}-${version}"
 
-for i in "${extra_manifests[@]}" ; do cp "${i}" "${config_dir}/manifests"
+for i in "${extra_manifests[@]}" ; do cp "${i}" "${config_dir}/manifests" ; done
 
 "${binary}" create ignition-configs --dir "${config_dir}"
