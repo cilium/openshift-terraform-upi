@@ -38,10 +38,11 @@ resource null_resource get_openshift_install {
   triggers = {
     openshift_distro = var.openshift_distro
     openshift_version = var.openshift_version
+    script_get_openshift_install = filesha256(local.script_get_openshift_install)
   }
 
   provisioner "local-exec" {
-    command = "${path.cwd}/get-openshift-install.sh ${var.openshift_distro} ${var.openshift_version}"
+    command = "${local.script_get_openshift_install} ${var.openshift_distro} ${var.openshift_version}"
   }
 }
 
@@ -52,10 +53,11 @@ resource null_resource manifests {
     openshift_distro = var.openshift_distro
     openshift_version = var.openshift_version
     install_config = local_file.install_config.id
+    script_create_manifests = filesha256(local.script_create_manifests)
   }
 
   provisioner "local-exec" {
-    command = "${path.cwd}/openshift-install-create-manifests.sh ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.install_config_path}"
+    command = "${local.script_create_manifests} ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.install_config_path}"
     environment = {
       AWS_ACCESS_KEY_ID = var.aws_access_key
       AWS_SECRET_ACCESS_KEY = var.aws_secret_key
@@ -83,10 +85,11 @@ resource null_resource ignition_configs {
     manifests = null_resource.manifests.id
     cilium_manifests = null_resource.cilium_manifests.id
     worker_machinesets = join("-", [for file in local_file.worker_machinesets : file.id])
+    script_create_ignition_configs = filesha256(local.script_create_ignition_configs)
   }
 
   provisioner "local-exec" {
-    command = "${path.cwd}/openshift-install-create-ignition-configs.sh ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.worker_machinesets_paths}"
+    command = "${local.script_create_ignition_configs} ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.worker_machinesets_paths}"
     environment = {
       AWS_ACCESS_KEY_ID = var.aws_access_key
       AWS_SECRET_ACCESS_KEY = var.aws_secret_key
@@ -133,4 +136,8 @@ locals {
 
   worker_ca = jsondecode(data.local_file.master_ign.content).ignition.security.tls.certificateAuthorities[0].source
   master_ca = jsondecode(data.local_file.worker_ign.content).ignition.security.tls.certificateAuthorities[0].source
+
+  script_get_openshift_install = format("%s/get-openshift-install.sh", asbpath(path.module))
+  script_create_manifests = format("%s/openshift-install-create-manifests.sh", asbpath(path.module))
+  script_create_ignition_configs = format("%s/openshift-install-create-ignition-configs.sh", asbpath(path.module))
 }
