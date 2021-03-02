@@ -137,7 +137,7 @@ locals {
   worker_ca = jsondecode(data.local_file.master_ign.content).ignition.security.tls.certificateAuthorities[0].source
   master_ca = jsondecode(data.local_file.worker_ign.content).ignition.security.tls.certificateAuthorities[0].source
 
-  script_get_openshift_install = format("%s/get-openshift-install.sh", asbpath(path.module))
-  script_create_manifests = format("%s/openshift-install-create-manifests.sh", asbpath(path.module))
-  script_create_ignition_configs = format("%s/openshift-install-create-ignition-configs.sh", asbpath(path.module))
+  script_get_openshift_install = format("%s/get-openshift-install.sh", abspath(path.module))
+  script_create_manifests = format("%s/openshift-install-create-manifests.sh", abspath(path.module))
+  script_create_ignition_configs = format("%s/openshift-install-create-ignition-configs.sh", abspath(path.module))
 }
