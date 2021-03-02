@@ -16,12 +16,10 @@ config_dir="${3}"
 
 shift 3
 
-worker_machinesets=("${@}")
+extra_manifests=("${@}")
 
 binary="${script_dir}/bin/openshift-install-${distro}-${version}"
 
-# add generated worker machinesets here as it's most convenient
-# having another null_resource for this wouldn't make a lot of sense
-cp "${worker_machinesets[@]}" "${config_dir}/openshift"
+for i in "${extra_manifests[@]}" ; do cp "${i}" "${config_dir}/manifests"
 
 "${binary}" create ignition-configs --dir "${config_dir}"
