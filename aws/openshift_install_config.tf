@@ -89,7 +89,7 @@ resource null_resource ignition_configs {
   }
 
   provisioner "local-exec" {
-    command = "${local.script_create_ignition_configs} ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.worker_machinesets_paths}"
+    command = "${local.script_create_ignition_configs} ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.worker_machinesets_paths} ${local.cwd}/cilium-test-scc.yaml"
     environment = {
       AWS_ACCESS_KEY_ID = var.aws_access_key
       AWS_SECRET_ACCESS_KEY = var.aws_secret_key
