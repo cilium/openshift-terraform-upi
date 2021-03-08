@@ -3,7 +3,7 @@ resource aws_s3_bucket cluster_boostrap_inginition_bucket {
   acl    = "private"
 }
 
-resource "aws_s3_bucket_policy" "cluster_boostrap_inginition_bucket" {
+resource aws_s3_bucket_policy cluster_boostrap_inginition_bucket {
   bucket = aws_s3_bucket.cluster_boostrap_inginition_bucket.id
 
   policy = jsonencode({
@@ -22,7 +22,7 @@ resource "aws_s3_bucket_policy" "cluster_boostrap_inginition_bucket" {
   })
 }
 
-resource "aws_s3_bucket_object" "cluster_boostrap_inginition_object" {
+resource aws_s3_bucket_object cluster_boostrap_inginition_object {
   depends_on = [ null_resource.ignition_configs ]
   key    = "bootstrap.ign"
   bucket = aws_s3_bucket.cluster_boostrap_inginition_bucket.id
@@ -31,7 +31,7 @@ resource "aws_s3_bucket_object" "cluster_boostrap_inginition_object" {
 
 # VPC Endpoint is being used to enable EC2 instances to access the bucket and avoid having to either
 # fork CloudFormation templates or make the bucket publically accessible
-resource "aws_vpc_endpoint" "cluster_boostrap_inginition_bucket" {
+resource aws_vpc_endpoint cluster_boostrap_inginition_bucket {
   vpc_id       = aws_cloudformation_stack.vpc.outputs["VpcId"]
   service_name = format("com.amazonaws.%s.s3", var.aws_region)
 
