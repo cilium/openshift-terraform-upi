@@ -54,7 +54,7 @@ resource aws_cloudformation_stack cluster_bootstrap {
     PublicSubnet = element(split(",", local.public_subnets), 0)
     MasterSecurityGroupId = local.master_sg
     VpcId = aws_cloudformation_stack.vpc.outputs["VpcId"]
-    BootstrapIgnitionLocation = format("s3://openshift-cilium-ci-%s-cluster-bootstrap/bootstrap.ign", local.infrastructure_name)
+    BootstrapIgnitionLocation = format("s3://%s/bootstrap.ign", local.cluster_boostrap_inginition_bucket_name)
 
     RhcosAmi = var.rhcos_ami
 

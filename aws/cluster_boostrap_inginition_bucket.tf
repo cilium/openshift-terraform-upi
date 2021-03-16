@@ -1,5 +1,5 @@
 resource aws_s3_bucket cluster_boostrap_inginition_bucket {
-  bucket = format("openshift-cilium-ci-%s-cluster-bootstrap", local.infrastructure_name)
+  bucket = local.cluster_boostrap_inginition_bucket_name
   acl    = "private"
 }
 
@@ -44,4 +44,8 @@ resource aws_vpc_endpoint cluster_boostrap_inginition_bucket {
       Resource = format("%s/*", aws_s3_bucket.cluster_boostrap_inginition_bucket.arn)
     }
   })
+}
+
+locals {
+  cluster_boostrap_inginition_bucket_name = format("openshift-cilium-ci-%s-cluster-bootstrap", substr(sha256(local.infrastructure_name), 0, 24))
 }
