@@ -134,6 +134,11 @@ locals {
 
   infrastructure_name = jsondecode(data.local_file.openshift_install_state_json.content)["*installconfig.ClusterID"]["InfraID"]
 
+  common_tags = {
+    CiliumOpenShiftInfrastructureName = local.infrastructure_name
+    CiliumOpenShiftClusterName = var.cluster_name
+  }
+
   worker_ca = jsondecode(data.local_file.master_ign.content).ignition.security.tls.certificateAuthorities[0].source
   master_ca = jsondecode(data.local_file.worker_ign.content).ignition.security.tls.certificateAuthorities[0].source
 

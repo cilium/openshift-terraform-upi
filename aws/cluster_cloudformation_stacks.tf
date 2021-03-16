@@ -2,12 +2,16 @@ resource aws_cloudformation_stack vpc {
   name = format("openshift-ci-%s-vpc", local.infrastructure_name)
 
   template_body = file(format("%s/01_vpc.yaml", local.cloudformation_templates))
+
+  tags = local.common_tags
 }
 
 resource aws_cloudformation_stack cluster_infra {
   name = format("openshift-ci-%s-cluster-infra", local.infrastructure_name)
 
   template_body = file(format("%s/02_cluster_infra.yaml", local.cloudformation_templates))
+
+  tags = local.common_tags
 
   capabilities = ["CAPABILITY_NAMED_IAM"]
 
@@ -29,6 +33,8 @@ resource aws_cloudformation_stack cluster_security {
 
   template_body = file(format("%s/03_cluster_security.yaml", local.cloudformation_templates))
 
+  tags = local.common_tags
+
   capabilities = ["CAPABILITY_IAM"]
 
   parameters = {
@@ -45,6 +51,8 @@ resource aws_cloudformation_stack cluster_bootstrap {
   depends_on = [ aws_s3_bucket_object.cluster_boostrap_inginition_object ]
 
   template_body = file(format("%s/04_cluster_bootstrap.yaml", local.cloudformation_templates))
+
+  tags = local.common_tags
 
   capabilities = ["CAPABILITY_IAM"]
 
@@ -73,6 +81,8 @@ resource aws_cloudformation_stack cluster_master_nodes {
   depends_on = [ aws_cloudformation_stack.cluster_bootstrap ]
 
   template_body = file(format("%s/05_cluster_master_nodes.yaml", local.cloudformation_templates))
+
+  tags = local.common_tags
 
   parameters = {
     InfrastructureName = local.infrastructure_name

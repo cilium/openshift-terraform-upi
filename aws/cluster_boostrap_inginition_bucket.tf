@@ -1,6 +1,8 @@
 resource aws_s3_bucket cluster_boostrap_inginition_bucket {
   bucket = local.cluster_boostrap_inginition_bucket_name
   acl    = "private"
+
+  tags = local.common_tags
 }
 
 resource aws_s3_bucket_policy cluster_boostrap_inginition_bucket {
@@ -34,6 +36,8 @@ resource aws_s3_bucket_object cluster_boostrap_inginition_object {
 resource aws_vpc_endpoint cluster_boostrap_inginition_bucket {
   vpc_id       = aws_cloudformation_stack.vpc.outputs["VpcId"]
   service_name = format("com.amazonaws.%s.s3", var.aws_region)
+
+  tags = local.common_tags
 
   policy = jsonencode({
     Version = "2012-10-17"
