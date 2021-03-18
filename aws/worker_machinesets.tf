@@ -6,6 +6,7 @@ locals {
       metadata = {
         labels = {
           "machine.openshift.io/cluster-api-cluster" = local.infrastructure_name
+          "machine.openshift.io/cluster-api-machine-role" = "worker"
         }
         name = "${local.infrastructure_name}-worker-${index}"
         namespace = "openshift-machine-api"
