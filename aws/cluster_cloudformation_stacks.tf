@@ -6,8 +6,25 @@ resource aws_cloudformation_stack vpc {
   tags = local.common_tags
 }
 
+# it's not possible to pass environment variables to destroy provisioner,
+# so a credentials file is the only way; the crednetials had already
+# been written to a file by `openshift-install`, so this doesn't compromise
+# them any further
+resource local_file aws_credentials {
+  content = join("\n", [
+    "[default]",
+    "aws_access_key_id = ${var.aws_access_key}",
+    "aws_secret_access_key = ${var.aws_secret_key}",
+    "",
+  ])
+  filename = format("%s/aws_credentials.ini", abspath(path.module))
+}
+
 resource aws_cloudformation_stack cluster_infra {
   name = format("openshift-ci-%s-cluster-infra", local.infrastructure_name)
+
+  # this dependency is required to ensure the credentials file is not destroyed before it is needed
+  depends_on = [ local_file.aws_credentials ]
 
   template_body = file(format("%s/02_cluster_infra.yaml", local.cloudformation_templates))
 
@@ -26,8 +43,15 @@ resource aws_cloudformation_stack cluster_infra {
     PrivateSubnets = local.private_subnets
     VpcId = aws_cloudformation_stack.vpc.outputs["VpcId"]
   }
+
+  provisioner "local-exec" {
+    when = destroy
+    # the Route53 zone is populated by ingress operator based, it's not possible to delete the entry using the API
+    # because the default object is mandated by the operator itself, and if it's deleted it gets re-created
+    command = format("%s/ensure-route53-zone-is-empty.sh %s", abspath(path.module), self.outputs["PrivateHostedZoneId"])
+  }
 }
- 
+
 resource aws_cloudformation_stack cluster_security {
   name = format("openshift-ci-%s-cluster-security", local.infrastructure_name)
 
@@ -126,4 +150,5 @@ locals {
     element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 1),
     element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 2),
   ]
+
 }
