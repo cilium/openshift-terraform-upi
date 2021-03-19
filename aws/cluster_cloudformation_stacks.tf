@@ -48,7 +48,7 @@ resource aws_cloudformation_stack cluster_infra {
     when = destroy
     # the Route53 zone is populated by ingress operator based, it's not possible to delete the entry using the API
     # because the default object is mandated by the operator itself, and if it's deleted it gets re-created
-    command = format("%s/ensure-route53-zone-is-empty.sh %s", abspath(path.module), self.outputs["PrivateHostedZoneId"])
+    command = format("%s/ensure-route53-zone-has-no-apps-record.sh %s", abspath(path.module), self.outputs["PrivateHostedZoneId"])
   }
 }
 

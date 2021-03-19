@@ -13,10 +13,9 @@ export AWS_SHARED_CREDENTIALS_FILE="${script_dir}/aws_credentials.ini"
 
 zone_id="${1}"
 
-env > test-script-env
+# any ad-hoc records block zone deletion in CloudFormation; it should be sufficient to clear *.apps record
+# for Cilium CI use-cases, but in a more general cases it's possible for users to add other records
  
-# it should be sufficient to clear *.apps record for Cilium CI use-cases,
-# but in a more general cases it's possible for users to add other records
 change_batch="$(aws route53 list-resource-record-sets --hosted-zone-id "${zone_id}" \
   | jq '.ResourceRecordSets[] | select(.Name | contains("052.apps.")) | {Changes: [{Action: "DELETE", ResourceRecordSet: . }]}')"
 
