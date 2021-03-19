@@ -11,6 +11,10 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   
 export AWS_CONFIG_FILE="${script_dir}/aws_config.ini"
 
+cat "${AWS_CONFIG_FILE}"
+
+aws configure list
+
 zone_id="${1}"
 
 # any ad-hoc records block zone deletion in CloudFormation; it should be sufficient to clear *.apps record
