@@ -8,11 +8,13 @@ set -o pipefail
 set -o nounset
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  
+
 export AWS_CONFIG_FILE="${script_dir}/aws_config.ini"
 
-region="${1}"
-vpc_id="${2}"
+terraform output -json aws_config | jq -r > "${AWS_CONFIG_FILE}"
+aws configure list
+
+vpc_id="${1}"
 
 elb_names=($(aws elb describe-load-balancers | jq -r --arg vpc_id "${vpc_id}" '.LoadBalancerDescriptions[] | select(.VPCId == $vpc_id) | .LoadBalancerName'))
 

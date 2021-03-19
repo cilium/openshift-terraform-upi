@@ -1,23 +1,5 @@
-# it's not possible to pass environment variables to destroy provisioners,
-# so a credentials file is the only way; the crednetials had already
-# been written to a file by `openshift-install`, so this doesn't compromise
-# them any further
-resource local_file aws_config_file {
-  content = join("\n", [
-    "[default]",
-    "region = ${var.aws_region}",
-    "aws_access_key_id = ${var.aws_access_key}",
-    "aws_secret_access_key = ${var.aws_secret_key}",
-    "",
-  ])
-  filename = format("%s/aws_config.ini", abspath(path.module))
-}
-
 resource aws_cloudformation_stack vpc {
   name = format("openshift-ci-%s-vpc", local.infrastructure_name)
-
-  # this dependency is required to ensure the credentials file is not destroyed before it is needed
-  depends_on = [ local_file.aws_config_file ]
 
   template_body = file(format("%s/01_vpc.yaml", local.cloudformation_templates))
 
@@ -34,9 +16,6 @@ resource aws_cloudformation_stack vpc {
 
 resource aws_cloudformation_stack cluster_infra {
   name = format("openshift-ci-%s-cluster-infra", local.infrastructure_name)
-
-  # this dependency is required to ensure the credentials file is not destroyed before it is needed
-  depends_on = [ local_file.aws_config_file ]
 
   template_body = file(format("%s/02_cluster_infra.yaml", local.cloudformation_templates))
 
