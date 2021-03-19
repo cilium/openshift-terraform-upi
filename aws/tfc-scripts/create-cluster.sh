@@ -18,7 +18,7 @@ if [ "$#" -ne 4 ] ; then
 fi
 
 name="${1}"
-openshift_disro="${2}"
+openshift_distro="${2}"
 openshift_version="${3}"
 cilium_version="${4}"
 
@@ -107,7 +107,7 @@ spec:
     extraVars:
       cluster_name: ${name}
       openshift_version: ${openshift_version}
-      openshift_disro: ${openshift_disro}
+      openshift_distro: ${openshift_distro}
       cilium_version: ${cilium_version}
   interval: 20s
   jobBackoffLimit: 2
