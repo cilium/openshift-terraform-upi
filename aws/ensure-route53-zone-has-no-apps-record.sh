@@ -9,8 +9,7 @@ set -o nounset
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   
-export AWS_DEFAULT_REGION=eu-west-1
-export AWS_SHARED_CREDENTIALS_FILE="${script_dir}/aws_credentials.ini"
+export AWS_CONFIG_FILE="${script_dir}/aws_config.ini"
 
 zone_id="${1}"
 
