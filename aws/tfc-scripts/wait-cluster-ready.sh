@@ -47,6 +47,7 @@ has_desired_openshift_version() {
 
 cilium_pods_are_ready() {
   ready="$(kubectl get daemonset --namespace=cilium cilium --output="jsonpath={.status.numberReady}" 2> /dev/null)"
+  test -n "${ready}"
   test "${ready}" -eq "${num_nodes}"
 }
 
