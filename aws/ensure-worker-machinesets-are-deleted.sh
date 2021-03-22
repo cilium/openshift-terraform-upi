@@ -16,7 +16,7 @@ name="$(terraform output -json cluster_name | jq -r)"
 
 export KUBECONFIG="${script_dir}/${name}.kubeconfig"
 
-terraform output -json cluster_kubeconfig | jq -r | base64 -d > "${KUBECONFIG}"
+terraform output -json cluster_kubeconfig | jq -r | base64 -d > "${KUBECONFIG}" || exit 0
 
 scale_down_worker_machinesets() {
   kubectl scale machinesets --namespace=openshift-machine-api --selector="machine.openshift.io/cluster-api-machine-role=worker" --replicas=0
