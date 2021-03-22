@@ -127,6 +127,12 @@ resource aws_cloudformation_stack cluster_master_nodes {
     InternalApiTargetGroupArn = aws_cloudformation_stack.cluster_infra.outputs["InternalApiTargetGroupArn"]
     InternalServiceTargetGroupArn = aws_cloudformation_stack.cluster_infra.outputs["InternalServiceTargetGroupArn"]
   }
+
+  provisioner "local-exec" {
+    when = destroy
+    # the worker machinesets will block deletion of most resources, so these need to be deleted first
+    command = format("%s/ensure-worker-machinesets-are-deleted.sh", abspath(path.module))
+  }
 }
 
 locals {

@@ -9,15 +9,14 @@ set -o nounset
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-if [ "$#" -ne 1 ] ; then
-  echo "$0 supports exactly 1 argument"
-  echo "example: '$0 test-1'"
-  exit 1
-fi
-
-name="${1}"
+# name and kubeconfig must be obtained for terraform outputs because
+# in the terraform-controller execution context these files written
+# during provisioning are not available during destruction
+name="$(terraform output -json cluster_name | jq -r)"
 
 export KUBECONFIG="${script_dir}/${name}.kubeconfig"
+
+terraform output -json cluster_kubeconfig | jq -r > "${KUBECONFIG}"
 
 scale_down_worker_machinesets() {
   kubectl scale machinesets --namespace=openshift-machine-api --selector="machine.openshift.io/cluster-api-machine-role=worker" --replicas=0
