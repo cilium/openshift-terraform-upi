@@ -23,6 +23,7 @@ openshift_version="${3}"
 cilium_version="${4}"
 
 namespace="terraform-system"
+execution_name="openshift-ci-${name}"
 
 follow_logs() {
   echo "INFO: streaming container logs"
@@ -54,9 +55,9 @@ one_pod_failed() {
 
 wait_for_job() {
   echo "INFO: waiting for the terraform execution to create a job..."
-  until [ "$(kubectl --namespace="${namespace}" get executions "${name}" --output="jsonpath={.status.mostRecentJob.action}")" = "Apply" ] ; do sleep 0.5 ; done
-  until [ "$(kubectl --namespace="${namespace}" get executions "${name}" --output="jsonpath={.status.mostRecentJob.state}")" = "Running" ] ; do sleep 0.5 ; done
-  job_name="$(kubectl --namespace="${namespace}" get executions "${name}" --output="jsonpath={.status.mostRecentJob.jobName}")"
+  until [ "$(kubectl --namespace="${namespace}" get executions "${execution_name}" --output="jsonpath={.status.mostRecentJob.action}")" = "Apply" ] ; do sleep 0.5 ; done
+  until [ "$(kubectl --namespace="${namespace}" get executions "${execution_name}" --output="jsonpath={.status.mostRecentJob.state}")" = "Running" ] ; do sleep 0.5 ; done
+  job_name="$(kubectl --namespace="${namespace}" get executions "${execution_name}" --output="jsonpath={.status.mostRecentJob.jobName}")"
 }
 
 wait_for_pod() {
@@ -92,7 +93,7 @@ kubectl create --namespace="${namespace}" --filename="-" << EOF
 apiVersion: terraform.cilium.io/v1alpha1
 kind: Execution
 metadata:
-  name: ${name}
+  name: ${execution_name}
   namespace: ${namespace}
 spec:
   moduleRef:
