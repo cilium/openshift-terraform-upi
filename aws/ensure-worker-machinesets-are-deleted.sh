@@ -29,8 +29,8 @@ has_zero_machines() {
 
 echo "INFO: scaling down all worker machinesets..."
 
-scale_down_worker_machinesets
+if scale_down_worker_machinesets ; then
+  echo "INFO: waiting for machines to be deleted..."
 
-echo "INFO: waiting for machines to be deleted..."
-
-until has_zero_machines ; do sleep 0.5 ; done
+  until has_zero_machines ; do sleep 0.5 ; done
+fi
