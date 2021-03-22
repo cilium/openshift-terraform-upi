@@ -30,14 +30,7 @@ follow_logs() {
   kubectl logs --namespace="${namespace}" --selector="job-name=${job_name}" --follow || true
 }
 
-troubleshoot() {
-  echo "INFO: gatherig additional information that maybe usefull in troubleshooting the failure"
-  kubectl describe pods --namespace="${namespace}" --selector="job-name=${job_name}"
-}
-
 bail() {
-  # echo "INFO: cleaning up..."
-  # kubectl delete --wait="false" --namespace="${namespace}" execution "${name}"
   exit "$1"
 }
 
@@ -121,7 +114,6 @@ wait_for_pod
 follow_logs
 
 if ! container_status ; then
-  troubleshoot
   bail 1
 fi
 
