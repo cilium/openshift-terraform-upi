@@ -65,7 +65,14 @@ wait_for_pod() {
 }
 
 get_container_exit_code() {
-  kubectl get pods --namespace="${namespace}" --selector="job-name=${job_name}" --output="jsonpath={.items[0].status.containerStatuses[0].state.terminated.exitCode}"
+  # the job can get deleted quite quickly on success, so need to check that first
+  pods=($(kubectl get pods --namespace="${namespace}" --selector="job-name=${job_name}" --output="jsonpath={range .items[*]}{.metadata.name}{\"\n\"}{end}"))
+  if [ "${#pods[@]}" -eq 1 ] ; then
+    kubectl get pods --namespace="${namespace}" --selector="job-name=${job_name}" --output="jsonpath={.items[0].status.containerStatuses[0].state.terminated.exitCode}"
+  else
+    # assume success
+    echo 0
+  fi
 }
 
 container_status() {
