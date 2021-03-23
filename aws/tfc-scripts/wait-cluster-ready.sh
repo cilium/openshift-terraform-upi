@@ -40,9 +40,9 @@ cilium_olm_operator_succeeded() {
 }
 
 has_desired_openshift_version() {
-  status="$(kubectl get clusterversion version --output="jsonpath={range .status.conditions[*]}{.type}={.status};{end}" 2> /dev/null)"
-  desired_status="Available=True;Failing=False;Progressing=False;RetrievedUpdates=True;"
-  test "${status}" = "${desired_status}"
+  status="$(kubectl get clusterversion version --output="jsonpath={range .status.conditions[?(.type == \"Available\")]}{.type}={.status};{end} {range .status.conditions[?(.type == \"Failing\")]}{.type}={.status};{end} {range .status.conditions[?(.type == \"Progressing\")]}{.type}={.status};{end}" 2> /dev/null)"
+  desired_state="Available=True; Failing=False; Progressing=False;"
+  test "${status}" = "${desired_state}"
 }
 
 cilium_pods_are_ready() {
