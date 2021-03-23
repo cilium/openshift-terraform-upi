@@ -69,7 +69,7 @@ echo "INFO: waiting for Cilium OLM operator and agent pods..."
 until cilium_olm_operator_succeeded ; do sleep 0.5 ; done
 until cilium_pods_are_ready ; do sleep 0.5 ; done
 
-echo "INFO: waiting for cluster to report desired version of OpenShift has been isntalled..."
+echo "INFO: waiting for cluster to report desired version of OpenShift has been installed..."
 
 until has_desired_openshift_version ; do sleep 0.5 ; done
 until all_operators_are_happy ; do sleep 0.5 ; done
