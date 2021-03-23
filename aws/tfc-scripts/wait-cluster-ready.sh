@@ -64,7 +64,7 @@ echo "INFO: waiting for cluster to have ${num_nodes} nodes ready..."
 
 until has_all_nodes ; do sleep 0.5 ; done
 
-echo "INFO: waiting for Cilium operator and pods..."
+echo "INFO: waiting for Cilium OLM operator and agent pods..."
 
 until cilium_olm_operator_succeeded ; do sleep 0.5 ; done
 until cilium_pods_are_ready ; do sleep 0.5 ; done
