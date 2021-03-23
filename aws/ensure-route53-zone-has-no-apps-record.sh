@@ -25,3 +25,5 @@ change_batch="$(aws route53 list-resource-record-sets --hosted-zone-id "${zone_i
 if [ -n "${change_batch}" ] ; then
   aws route53 change-resource-record-sets --hosted-zone-id "${zone_id}" --change-batch "${change_batch}"
 fi
+
+echo "INFO: the Route53 zone should have no *.apps record"

@@ -35,3 +35,5 @@ for elb_security_group in "${elb_security_groups[@]}" ; do
     sleep 1
   done
 done
+
+echo "INFO: the ELB should be deleted"
