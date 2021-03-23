@@ -92,8 +92,16 @@ resource aws_cloudformation_stack cluster_bootstrap {
 resource aws_cloudformation_stack cluster_master_nodes {
   name = format("openshift-ci-%s-cluster-master-nodes", local.infrastructure_name)
 
-  # force dependency to avoid target group errors
-  depends_on = [ aws_cloudformation_stack.cluster_bootstrap ]
+  depends_on = [
+    # force dependency to avoid target group errors
+    aws_cloudformation_stack.cluster_bootstrap,
+    # in all likelihood ingress rules would created before this stack,
+    # however deletion of ingress rules happens first as nothing depends
+    # on them, which causes Cilium connectivity to break and prevents
+    # deletion of worker machinesets to complete, as Machine API controller
+    # becomes unable to connect to the EC2 API
+    aws_security_group_rule.cilium_ingress_rules,
+  ]
 
   template_body = file(format("%s/05_cluster_master_nodes.yaml", local.cloudformation_templates))
 
