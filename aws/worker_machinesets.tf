@@ -34,7 +34,7 @@ locals {
                 apiVersion = "awsproviderconfig.openshift.io/v1beta1"
                 kind = "AWSMachineProviderConfig"
                 instanceType = var.compute_instance_type
-                ami = { id = var.rhcos_ami }
+                ami = { id = local.ami }
                 blockDevices = [{
                   ebs = {
                     encrypted: true
