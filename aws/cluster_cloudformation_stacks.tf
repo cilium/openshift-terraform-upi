@@ -79,7 +79,7 @@ resource aws_cloudformation_stack cluster_bootstrap {
     VpcId = aws_cloudformation_stack.vpc.outputs["VpcId"]
     BootstrapIgnitionLocation = format("s3://%s/bootstrap.ign", local.cluster_boostrap_inginition_bucket_name)
 
-    RhcosAmi = var.rhcos_ami
+    RhcosAmi = local.ami
 
     AutoRegisterELB = "yes"
     ExternalApiTargetGroupArn = aws_cloudformation_stack.cluster_infra.outputs["ExternalApiTargetGroupArn"]
@@ -120,7 +120,7 @@ resource aws_cloudformation_stack cluster_master_nodes {
 
     MasterInstanceType = var.control_plane_instance_type
 
-    RhcosAmi = var.rhcos_ami
+    RhcosAmi = local.ami
 
     PrivateHostedZoneId = aws_cloudformation_stack.cluster_infra.outputs["PrivateHostedZoneId"]
     PrivateHostedZoneName = format("%s.%s", var.cluster_name, var.hosted_zone_name)

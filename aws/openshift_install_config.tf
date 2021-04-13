@@ -99,6 +99,7 @@ resource null_resource ignition_configs {
 
 data local_file openshift_install_state_json {
   # metadata.json is not generated when the InfraID is needed, so read it from installer state
+  # this must depend on manifests also because AMI is populated only after manifests are generated
   depends_on = [ null_resource.manifests ]
 
   filename = format("%s/.openshift_install_state.json", local.config_dir)
@@ -133,6 +134,7 @@ locals {
   install_config_path = format("%s/config/%s.install-config.yaml", abspath(path.module), var.cluster_name)
 
   infrastructure_name = jsondecode(data.local_file.openshift_install_state_json.content)["*installconfig.ClusterID"]["InfraID"]
+  ami = jsondecode(data.local_file.openshift_install_state_json.content)["*installconfig.InstallConfig"]["config"]["controlPlane"]["platform"]["aws"]["amiID"]
 
   common_tags = {
     CiliumOpenShiftInfrastructureName = local.infrastructure_name

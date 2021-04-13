@@ -18,13 +18,6 @@ variable hosted_zone_name {
   default = "ilya-openshift-test-1.cilium.rocks"
 }
 
-variable rhcos_ami {
-  # TODO: find a way to update this automatically
-  # https://github.com/openshift/openshift-docs/blob/master/modules/installation-aws-user-infra-rhcos-ami.adoc
-  type = string
-  default = "ami-0b4024fa5cb2588bd"
-}
-
 variable pull_secret {
   type = string
   default = ""
