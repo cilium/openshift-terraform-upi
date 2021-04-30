@@ -28,7 +28,7 @@ resource local_file install_config {
     }
     publish = "External"
     pullSecret = var.pull_secret
-    sshKey = var.ssh_key
+    sshKey = tls_private_key.ssh_key.public_key_openssh
   })
 
   filename = local.install_config_path

@@ -24,12 +24,6 @@ variable pull_secret {
   sensitive = true
 }
 
-variable ssh_key {
-  type = string
-  default = ""
-  sensitive = true
-}
-
 variable openshift_distro {
   type = string
   default = "ocp"

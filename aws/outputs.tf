@@ -12,6 +12,11 @@ output cluster_kubeadmin_password {
   sensitive = true
 }
 
+output cluster_ssh_key {
+  value = tls_private_key.ssh_key.private_key_pem
+  sensitive = true
+}
+
 # it's not possible to pass environment variables to destroy provisioners,
 # and local files cannot be used with terraform-controller at present,
 # so a credentials file is stored as outout instead
