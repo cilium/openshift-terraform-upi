@@ -6,7 +6,7 @@ module cloudformation_templates {
 
 module cilium_olm {
   # this needs to be kept up-to-date as new Cilium releases get added to the repo
-  source = "git::https://github.com/cilium/cilium-olm.git?ref=5ec545597c94312fef302664143ed698be48f355"
+  source = "git::https://github.com/cilium/cilium-olm.git?ref=ca46642da0a65264fdeca606674cff78c3a8e4a4"
 }
 
 locals {
