@@ -89,12 +89,16 @@ resource null_resource ignition_configs {
   }
 
   provisioner "local-exec" {
-    command = "${local.script_create_ignition_configs} ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.worker_machinesets_paths} ${path.cwd}/cluster-network-08-cilium-test-00000-cilium-test-namespace.yaml ${path.cwd}/cluster-network-08-cilium-test-00001-cilium-test-hostnetwork-role.yaml ${path.cwd}/cluster-network-08-cilium-test-00002-cilium-test-hostnetwork-rolebinding.yaml"
+    command = "${local.script_create_ignition_configs} ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.worker_machinesets_paths} ${local.cilium_test_resource_paths}"
     environment = {
       AWS_ACCESS_KEY_ID = var.aws_access_key
       AWS_SECRET_ACCESS_KEY = var.aws_secret_key
     }
   }
+}
+
+locals {
+  cilium_test_resource_paths = join(" ", fileset(path.module, "cluster-network-08-cilium-test-*.yaml"))
 }
 
 data local_file openshift_install_state_json {
