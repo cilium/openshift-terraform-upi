@@ -3,6 +3,11 @@ variable cilium_version {
   default = "1.9.4"
 }
 
+variable custom_cilium_config_values {
+  type = any
+  default = {}
+}
+
 variable cluster_name {
   type = string
   default = "test-1"
