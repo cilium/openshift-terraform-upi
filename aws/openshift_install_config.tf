@@ -43,7 +43,7 @@ resource local_file custom_cilium_config {
       name = "cilium"
       namespace = "cilium"
     }
-    spec = var.custom_cilium_config_values
+    spec = merge(local.cilium_config_values, var.custom_cilium_config_values)
   })
 
   filename = local.custom_cilium_config_path
@@ -158,6 +158,10 @@ data local_file kubeadmin_password {
   filename = format("%s/auth/kubeadmin-password", local.config_dir)
 }
 
+data local_file cilium_config {
+  filename = format("%s/manifests/cilium.v%s/cluster-network-07-cilium-ciliumconfig.yaml", local.cilium_olm, var.cilium_version)
+}
+
 locals {
   config_dir = format("%s/config/%s/state", abspath(path.module), var.cluster_name)
   install_config_path = format("%s/config/%s/input/install-config.yaml", abspath(path.module), var.cluster_name)
@@ -165,6 +169,8 @@ locals {
 
   infrastructure_name = jsondecode(data.local_file.openshift_install_state_json.content)["*installconfig.ClusterID"]["InfraID"]
   ami = jsondecode(data.local_file.openshift_install_state_json.content)["*installconfig.InstallConfig"]["config"]["controlPlane"]["platform"]["aws"]["amiID"]
+
+  cilium_config_values = yamldecode(data.local_file.cilium_config.content)["spec"]
 
   common_tags = {
     CiliumOpenShiftInfrastructureName = local.infrastructure_name
