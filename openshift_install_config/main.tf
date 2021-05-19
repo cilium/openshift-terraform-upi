@@ -21,11 +21,7 @@ resource local_file install_config {
       networkType = "Cilium"
       serviceNetwork = [ "172.30.0.0/16" ]
     }
-    platform = {
-      aws = {
-        region = var.aws_region
-      }
-    }
+    platform = var.platform
     publish = "External"
     pullSecret = var.pull_secret
     sshKey = tls_private_key.ssh_key.public_key_openssh
@@ -73,10 +69,7 @@ resource null_resource manifests {
 
   provisioner "local-exec" {
     command = "${local.script_create_manifests} ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.install_config_path}"
-    environment = {
-      AWS_ACCESS_KEY_ID = var.aws_access_key
-      AWS_SECRET_ACCESS_KEY = var.aws_secret_key
-    }
+    environment = var.platform_env
   }
 }
 
@@ -96,7 +89,6 @@ resource null_resource cilium_manifests {
 resource null_resource ignition_configs {
   depends_on = [
     null_resource.cilium_manifests,
-    local_file.worker_machinesets,
     null_resource.get_openshift_install,
     local_file.custom_cilium_config,
   ]
@@ -104,7 +96,7 @@ resource null_resource ignition_configs {
   triggers = {
     manifests = null_resource.manifests.id
     cilium_manifests = null_resource.cilium_manifests.id
-    worker_machinesets = join("-", [for file in local_file.worker_machinesets : file.id])
+    worker_machinesets = join("-", local.worker_machinesets_hashes)
     script_create_ignition_configs = filesha256(local.script_create_ignition_configs)
     custom_cilium_config = local_file.custom_cilium_config.id
   }
@@ -116,13 +108,10 @@ resource null_resource ignition_configs {
       var.openshift_version,
       local.config_dir,
       local.worker_machinesets_paths,
-      fileset(path.module, "cluster-network-08-cilium-test-*.yaml"),
+      [ for file in fileset(path.module, "cluster-network-08-cilium-test-*.yaml") : "${abspath(path.module)}/${file}" ],
       length(var.custom_cilium_config_values) > 0 ? [local.custom_cilium_config_path] : [],
     ]))
-    environment = {
-      AWS_ACCESS_KEY_ID = var.aws_access_key
-      AWS_SECRET_ACCESS_KEY = var.aws_secret_key
-    }
+    environment = var.platform_env
   }
 }
 
@@ -132,6 +121,12 @@ data local_file openshift_install_state_json {
   depends_on = [ null_resource.manifests ]
 
   filename = format("%s/.openshift_install_state.json", local.config_dir)
+}
+
+data local_file bootstrap_ign {
+  depends_on = [ null_resource.ignition_configs ]
+
+  filename = format("%s/bootstrap.ign", local.config_dir)
 }
 
 data local_file master_ign {
@@ -162,6 +157,16 @@ data local_file cilium_config {
   filename = format("%s/manifests/cilium.v%s/cluster-network-07-cilium-ciliumconfig.yaml", local.cilium_olm, var.cilium_version)
 }
 
+resource local_file worker_machinesets {
+  for_each = {
+    for index, machineset in var.worker_machinesets : "worker-machineset-${index}" => machineset
+  }
+
+  content = yamlencode(each.value)
+
+  filename = format("%s/config/%s/input/%s.yaml", abspath(path.module), var.cluster_name, each.key)
+}
+
 locals {
   config_dir = format("%s/config/%s/state", abspath(path.module), var.cluster_name)
   install_config_path = format("%s/config/%s/input/install-config.yaml", abspath(path.module), var.cluster_name)
@@ -175,7 +180,10 @@ locals {
   worker_ca = jsondecode(data.local_file.master_ign.content).ignition.security.tls.certificateAuthorities[0].source
   master_ca = jsondecode(data.local_file.worker_ign.content).ignition.security.tls.certificateAuthorities[0].source
 
-  script_get_openshift_install = format("%s/get-openshift-install.sh", abspath("../common"))
-  script_create_manifests = format("%s/openshift-install-create-manifests.sh", abspath("../common"))
-  script_create_ignition_configs = format("%s/openshift-install-create-ignition-configs.sh", abspath("../common"))
+  script_get_openshift_install = format("%s/get-openshift-install.sh", abspath(path.module))
+  script_create_manifests = format("%s/openshift-install-create-manifests.sh", abspath(path.module))
+  script_create_ignition_configs = format("%s/openshift-install-create-ignition-configs.sh", abspath(path.module))
+
+  worker_machinesets_paths = [ for index, machineset in var.worker_machinesets : format("%s/config/%s/input/worker-machineset-%s.yaml", abspath(path.module), var.cluster_name, index) ]
+  worker_machinesets_hashes = [ for file in local_file.worker_machinesets : file.id ]
 }

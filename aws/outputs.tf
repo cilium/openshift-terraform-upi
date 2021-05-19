@@ -3,17 +3,17 @@ output cluster_name {
 }
 
 output cluster_kubeconfig {
-  value = data.local_file.kubeconfig.content_base64
+  value = module.openshift_install_config.cluster_kubeconfig
   sensitive = true
 }
 
 output cluster_kubeadmin_password {
-  value = data.local_file.kubeadmin_password.content
+  value = module.openshift_install_config.cluster_kubeadmin_password
   sensitive = true
 }
 
 output cluster_ssh_key {
-  value = tls_private_key.ssh_key.private_key_pem
+  value = module.openshift_install_config.cluster_ssh_key
   sensitive = true
 }
 

@@ -57,17 +57,3 @@ locals {
     }
   ]
 }
-
-resource local_file worker_machinesets {
-  for_each = {
-    for index, machineset in local.worker_machinesets : "worker-machineset-${index}" => machineset
-  }
-
-  content = yamlencode(each.value)
-
-  filename = format("%s/config/%s.%s.yaml", abspath(path.module), var.cluster_name, each.key)
-}
-
-locals {
-  worker_machinesets_paths = join(" ", [ for index, machineset in local.worker_machinesets : format("%s/config/%s.worker-machineset-%s.yaml", abspath(path.module), var.cluster_name, index) ])
-}

@@ -25,10 +25,9 @@ resource aws_s3_bucket_policy cluster_boostrap_inginition_bucket {
 }
 
 resource aws_s3_bucket_object cluster_boostrap_inginition_object {
-  depends_on = [ null_resource.ignition_configs ]
   key    = "bootstrap.ign"
   bucket = aws_s3_bucket.cluster_boostrap_inginition_bucket.id
-  source = format("%s/bootstrap.ign", local.config_dir)
+  content = module.openshift_install_config.bootstrap_ign
 }
 
 # VPC Endpoint is being used to enable EC2 instances to access the bucket and avoid having to either

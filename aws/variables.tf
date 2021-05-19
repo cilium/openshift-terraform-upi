@@ -26,7 +26,6 @@ variable dns_zone_name {
 variable pull_secret {
   type = string
   default = ""
-  sensitive = true
 }
 
 variable openshift_distro {
@@ -76,12 +75,10 @@ variable aws_region {
 
 variable aws_access_key {
   type = string
-  # sensitive = true
 }
 
 variable aws_secret_key {
   type = string
-  # sensitive = true
 }
 
 provider aws {
