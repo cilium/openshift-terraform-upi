@@ -155,5 +155,4 @@ locals {
     element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 1),
     element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 2),
   ]
-
 }
