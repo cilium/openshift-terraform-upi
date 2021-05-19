@@ -18,7 +18,7 @@ variable hosted_zone_id {
   default = "Z02916301G8QAGZFPQZUP"
 }
 
-variable hosted_zone_name {
+variable dns_zone_name {
   type = string
   default = "ilya-openshift-test-1.cilium.rocks"
 }

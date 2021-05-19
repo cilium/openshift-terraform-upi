@@ -29,7 +29,7 @@ resource aws_cloudformation_stack cluster_infra {
     InfrastructureName = local.infrastructure_name
 
     HostedZoneId = var.hosted_zone_id
-    HostedZoneName = var.hosted_zone_name
+    HostedZoneName = var.dns_zone_name
     PublicSubnets = local.public_subnets
     PrivateSubnets = local.private_subnets
     VpcId = aws_cloudformation_stack.vpc.outputs["VpcId"]
@@ -79,7 +79,7 @@ resource aws_cloudformation_stack cluster_bootstrap {
     VpcId = aws_cloudformation_stack.vpc.outputs["VpcId"]
     BootstrapIgnitionLocation = format("s3://%s/bootstrap.ign", local.cluster_boostrap_inginition_bucket_name)
 
-    RhcosAmi = local.ami
+    RhcosAmi = local.rhcos_image
 
     AutoRegisterELB = "yes"
     ExternalApiTargetGroupArn = aws_cloudformation_stack.cluster_infra.outputs["ExternalApiTargetGroupArn"]
@@ -120,10 +120,10 @@ resource aws_cloudformation_stack cluster_master_nodes {
 
     MasterInstanceType = var.control_plane_instance_type
 
-    RhcosAmi = local.ami
+    RhcosAmi = local.rhcos_image
 
     PrivateHostedZoneId = aws_cloudformation_stack.cluster_infra.outputs["PrivateHostedZoneId"]
-    PrivateHostedZoneName = format("%s.%s", var.cluster_name, var.hosted_zone_name)
+    PrivateHostedZoneName = format("%s.%s", var.cluster_name, var.dns_zone_name)
 
     CertificateAuthorities = local.master_ca
 
@@ -155,4 +155,9 @@ locals {
     element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 1),
     element(split(",", aws_cloudformation_stack.vpc.outputs["PrivateSubnetIds"]), 2),
   ]
+
+  common_tags = {
+    CiliumOpenShiftInfrastructureName = local.infrastructure_name
+    CiliumOpenShiftClusterName = var.cluster_name
+  }
 }

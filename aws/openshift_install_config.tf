@@ -3,7 +3,7 @@ resource local_file install_config {
   content = yamlencode({
     apiVersion = "v1"
     metadata = { name = var.cluster_name }
-    baseDomain = var.hosted_zone_name
+    baseDomain = var.dns_zone_name
     compute = [{
       architecture = "amd64"
       name = "worker"
@@ -128,7 +128,7 @@ resource null_resource ignition_configs {
 
 data local_file openshift_install_state_json {
   # metadata.json is not generated when the InfraID is needed, so read it from installer state
-  # this must depend on manifests also because AMI is populated only after manifests are generated
+  # this must depend on manifests also because local.rhcos_image is populated only after manifests are generated
   depends_on = [ null_resource.manifests ]
 
   filename = format("%s/.openshift_install_state.json", local.config_dir)
@@ -168,19 +168,14 @@ locals {
   custom_cilium_config_path = format("%s/config/%s/input/cluster-network-07-cilium-ciliumconfig.yaml", abspath(path.module), var.cluster_name)
 
   infrastructure_name = jsondecode(data.local_file.openshift_install_state_json.content)["*installconfig.ClusterID"]["InfraID"]
-  ami = jsondecode(data.local_file.openshift_install_state_json.content)["*installconfig.InstallConfig"]["config"]["controlPlane"]["platform"]["aws"]["amiID"]
+  rhcos_image = jsondecode(data.local_file.openshift_install_state_json.content)["*rhcos.Image"]
 
   cilium_config_values = yamldecode(data.local_file.cilium_config.content)["spec"]
-
-  common_tags = {
-    CiliumOpenShiftInfrastructureName = local.infrastructure_name
-    CiliumOpenShiftClusterName = var.cluster_name
-  }
 
   worker_ca = jsondecode(data.local_file.master_ign.content).ignition.security.tls.certificateAuthorities[0].source
   master_ca = jsondecode(data.local_file.worker_ign.content).ignition.security.tls.certificateAuthorities[0].source
 
-  script_get_openshift_install = format("%s/get-openshift-install.sh", abspath(path.module))
-  script_create_manifests = format("%s/openshift-install-create-manifests.sh", abspath(path.module))
-  script_create_ignition_configs = format("%s/openshift-install-create-ignition-configs.sh", abspath(path.module))
+  script_get_openshift_install = format("%s/get-openshift-install.sh", abspath("../common"))
+  script_create_manifests = format("%s/openshift-install-create-manifests.sh", abspath("../common"))
+  script_create_ignition_configs = format("%s/openshift-install-create-ignition-configs.sh", abspath("../common"))
 }
