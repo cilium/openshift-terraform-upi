@@ -1,0 +1,5 @@
+aws_config.ini
+.terraform
+terraform.tfstate
+terraform.tfstate.backup
+config
