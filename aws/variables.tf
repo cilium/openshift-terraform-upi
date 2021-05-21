@@ -13,14 +13,14 @@ variable cluster_name {
   default = "test-1"
 }
 
-variable hosted_zone_id {
-  type = string
-  default = "Z05258822OMYT9BEZ9ZTR"
-}
-
 variable dns_zone_name {
   type = string
   default = "openshift-ci-aws.cilium.rock"
+}
+
+variable aws_hosted_zone_id {
+  type = string
+  default = "Z05258822OMYT9BEZ9ZTR"
 }
 
 variable pull_secret {

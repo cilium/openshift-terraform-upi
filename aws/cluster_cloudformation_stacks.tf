@@ -28,7 +28,7 @@ resource aws_cloudformation_stack cluster_infra {
 
     InfrastructureName = local.infrastructure_name
 
-    HostedZoneId = var.hosted_zone_id
+    HostedZoneId = var.aws_hosted_zone_id
     HostedZoneName = var.dns_zone_name
     PublicSubnets = local.public_subnets
     PrivateSubnets = local.private_subnets
