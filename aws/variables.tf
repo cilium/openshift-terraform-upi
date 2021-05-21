@@ -15,12 +15,12 @@ variable cluster_name {
 
 variable hosted_zone_id {
   type = string
-  default = "Z02916301G8QAGZFPQZUP"
+  default = "Z05258822OMYT9BEZ9ZTR"
 }
 
 variable dns_zone_name {
   type = string
-  default = "ilya-openshift-test-1.cilium.rocks"
+  default = "openshift-ci-aws.cilium.rock"
 }
 
 variable pull_secret {
