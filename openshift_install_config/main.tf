@@ -65,11 +65,18 @@ resource null_resource manifests {
     openshift_version = var.openshift_version
     install_config = local_file.install_config.id
     script_create_manifests = filesha256(local.script_create_manifests)
+    # workaround to pass this as argument to destroy provisioner
+    config_dir = local.config_dir
   }
 
   provisioner "local-exec" {
     command = "${local.script_create_manifests} ${var.openshift_distro} ${var.openshift_version} ${local.config_dir} ${local.install_config_path}"
     environment = var.platform_env
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+    command = "rm -rf ${self.triggers.config_dir}"
   }
 }
 
