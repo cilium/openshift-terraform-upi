@@ -22,7 +22,7 @@ module openshift_install_config {
     GOOGLE_CREDENTIALS = var.gcp_credentials
   }
 
-  #worker_machinesets = local.worker_machinesets
+  worker_machinesets = local.worker_machinesets
 }
 
 locals {

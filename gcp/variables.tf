@@ -37,6 +37,25 @@ variable openshift_version {
   default = "4.7.11"
 }
 
+variable compute_machine_type {
+  type = string
+  default = "n1-standard-4"
+}
+
+variable compute_machines_per_zone {
+  type = number
+  default = 1
+}
+
+variable compute_root_volume_size {
+  type = number
+  default = 128
+}
+
+variable compute_root_volume_type {
+  type = string
+  default = "pd-ssd"
+}
 
 variable control_plane_machine_type {
   type = string
