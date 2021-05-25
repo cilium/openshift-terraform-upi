@@ -34,7 +34,7 @@ variable openshift_distro {
 
 variable openshift_version {
   type = string
-  default = "4.7.12"
+  default = "4.7.11"
 }
 
 variable compute_instance_type {
