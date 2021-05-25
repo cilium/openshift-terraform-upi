@@ -1,6 +1,6 @@
 variable cilium_version {
   type = string
-  default = "1.9.4"
+  default = "1.9.7"
 }
 
 variable custom_cilium_config_values {
@@ -10,7 +10,6 @@ variable custom_cilium_config_values {
 
 variable cluster_name {
   type = string
-  default = "test-1"
 }
 
 variable dns_zone_name {
@@ -35,7 +34,7 @@ variable openshift_distro {
 
 variable openshift_version {
   type = string
-  default = "4.7.0"
+  default = "4.7.12"
 }
 
 variable compute_instance_type {
