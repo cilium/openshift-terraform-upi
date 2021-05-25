@@ -33,20 +33,25 @@ locals {
               value = {
                 apiVersion = "awsproviderconfig.openshift.io/v1beta1"
                 kind = "AWSMachineProviderConfig"
+
+                placement = { region = var.aws_region }
+
                 instanceType = var.compute_instance_type
+
                 ami = { id = local.rhcos_image }
                 blockDevices = [{
                   ebs = {
-                    encrypted: true
-                    volumeSize: var.compute_root_volume_size
-                    volumeType: var.compute_root_volume_type
+                    encrypted = true
+                    volumeSize = var.compute_root_volume_size
+                    volumeType = var.compute_root_volume_type
                     iops = var.compute_root_volume_iops
                   }
                 }]
+
                 iamInstanceProfile = { id = aws_cloudformation_stack.cluster_security.outputs["WorkerInstanceProfile"] }
-                placement = { region = var.aws_region }
                 securityGroups = [{ id = local.worker_sg }]
                 subnet =  { id = subnet }
+
                 credentialsSecret = { name = "aws-cloud-credentials" }
                 userDataSecret = { name = "worker-user-data" }
               }
