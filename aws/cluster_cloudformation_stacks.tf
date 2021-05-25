@@ -139,7 +139,7 @@ resource aws_cloudformation_stack cluster_master_nodes {
   provisioner "local-exec" {
     when = destroy
     # the worker machinesets will block deletion of most resources, so these need to be deleted first
-    command = format("%s/ensure-worker-machinesets-are-deleted.sh", abspath(path.module))
+    command = format("%s/ensure-worker-machinesets-are-deleted.sh", abspath("${path.module}/../common"))
   }
 }
 

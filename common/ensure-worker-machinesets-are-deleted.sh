@@ -7,14 +7,12 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 # name and kubeconfig must be obtained for terraform outputs because
 # in the terraform-controller execution context these files written
 # during provisioning are not available during destruction
 name="$(terraform output -json cluster_name | jq -r)"
 
-export KUBECONFIG="${script_dir}/${name}.kubeconfig"
+export KUBECONFIG="${name}.kubeconfig"
 
 terraform output -json cluster_kubeconfig | jq -r | base64 -d > "${KUBECONFIG}" || exit 0
 
