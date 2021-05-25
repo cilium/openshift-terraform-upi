@@ -14,9 +14,10 @@ set -o nounset
 # output form state file during destruction
 name="$(terraform output -json cluster_name | jq -r)"
 
-export KUBECONFIG="${name}.kubeconfig"
+terraform output -json cluster_kubeconfig | jq -r | base64 -d > "${name}.kubeconfig" || exit 0
 
-terraform output -json cluster_kubeconfig | jq -r | base64 -d > "${KUBECONFIG}" || exit 0
+# export this separately as it breaks terrafrom interacing with state backend in some cases
+export KUBECONFIG="${name}.kubeconfig"
 
 scale_down_worker_machinesets() {
   kubectl scale machinesets --namespace=openshift-machine-api --selector="machine.openshift.io/cluster-api-machine-role=worker" --replicas=0

@@ -35,6 +35,32 @@ resource google_deployment_manager_deployment vpc {
   }
 }
 
+resource null_resource vpc_deletion_workaround {
+  # vpc deployment cannot be deleted without removing firewall rules that were created by Kubernetes
+  # and it's not possible to pass arguments to destroy provisioners, so this slightly
+  # odd workardound is required
+  # NOTE: AWS variant can attach destroy provisioners to the CloudFormation stack, as self.outputs
+  # can be passed as args, but Deployment Manager doesn't have outputs
+  # NOTE: dettach destroy provisioners are not as robust, as they only get triggered once and are
+  # not bound to the state of resouces in question, i.e. if deployment keeps failing to get deleted,
+  # this provisioner will not execute on each attemp
+
+  triggers = {
+    arg1 = google_deployment_manager_deployment.vpc.self_link
+    google_credentials = var.gcp_credentials
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+
+    command = "./remove-vpc-dependencies.sh ${self.triggers.arg1}"
+
+    environment = {
+      GOOGLE_CREDENTIALS = self.triggers.google_credentials
+    }
+  }
+}
+
 data google_compute_network cluster {
   name = format("%s-network", local.infrastructure_name)
   depends_on = [ google_deployment_manager_deployment.vpc ]
@@ -59,20 +85,13 @@ resource google_deployment_manager_deployment cluster_infra {
     config {
       content = yamlencode({
         imports = [
-          { path = "02_dns.py" },
           { path = "02_lb_ext.py" },
           { path = "02_lb_int.py" },
         ]
         resources = [
-          {
-            name = "cluster-dns"
-            type = "02_dns.py"
-            properties = {
-              infra_id = local.infrastructure_name
-              cluster_domain = local.cluster_domain
-              cluster_network = data.google_compute_network.cluster.self_link
-            }
-          },
+          # "02_dns.py" is not included here as it's trivial and
+          # it is more convenient to manage with terraform, as
+          # terraform supports forced deletion
           {
             name = "cluster-lb-ext"
             type = "02_lb_ext.py"
@@ -94,11 +113,6 @@ resource google_deployment_manager_deployment cluster_infra {
           },
         ]
       })
-    }
-
-    imports {
-      name = "02_dns.py"
-      content = file(format("%s/02_dns.py", local.deployment_manager_configs))
     }
 
     imports {
@@ -299,19 +313,29 @@ resource null_resource bootstrap_deletion_workaround {
   # bootstrap deployment cannot be deleted without undoing backend association that provisioner
   # has setup, but it's not possible to pass arguments to destroy provisioners, so this slightly
   # odd workardound is required
+  # NOTE: AWS variant can attach destroy provisioners to the CloudFormation stack, as self.outputs
+  # can be passed as args, but Deployment Manager doesn't have outputs
+  # NOTE: dettach destroy provisioners are not as robust, as they only get triggered once and are
+  # not bound to the state of resouces in question, i.e. if deployment keeps failing to get deleted,
+  # this provisioner will not execute on each attemp
   depends_on = [ google_deployment_manager_deployment.cluster_bootstrap ]
 
   triggers = {
     arg1 = google_deployment_manager_deployment.cluster_infra.self_link
+    arg2 = local.infrastructure_name
+    google_credentials = var.gcp_credentials
   }
 
   provisioner "local-exec" {
     when = destroy
 
-    command = "./remove-infra-dependencies.sh ${self.triggers.arg1}"
+    command = "./remove-bootstrap-dependencies.sh ${self.triggers.arg1} ${self.triggers.arg2}"
+
+    environment = {
+      GOOGLE_CREDENTIALS = self.triggers.google_credentials
+    }
   }
 }
-
 
 resource google_deployment_manager_deployment cluster_master_nodes {
   name = format("openshift-ci-%s-cluster-master-nodes", local.infrastructure_name)
@@ -319,6 +343,12 @@ resource google_deployment_manager_deployment cluster_master_nodes {
   depends_on = [
     google_deployment_manager_deployment.cluster_bootstrap,
     google_compute_firewall.cilium_ports,
+    # destroy provision will break if DNS gets wiped before this deployment,
+    # as DNS record would normaly gets deleted first because nothing depends
+    # on them; it's possible that other DNS records get wiped, but that normally
+    # should not affect the control plane, i.e. the chances of all API servers
+    # restaring and trying to resolve etcd hosts are very very slim
+    google_dns_record_set.api_public_a_record,
   ]
 
   target {
@@ -374,6 +404,12 @@ resource google_deployment_manager_deployment cluster_master_nodes {
     environment = {
       GOOGLE_CREDENTIALS = var.gcp_credentials
     }
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+    # the worker machinesets will block deletion of most resources, so these need to be deleted first
+    command = format("%s/ensure-worker-machinesets-are-deleted.sh", abspath("${path.module}/../common"))
   }
 }
 

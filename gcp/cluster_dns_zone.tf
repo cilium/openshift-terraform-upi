@@ -1,6 +1,18 @@
-data google_dns_managed_zone private {
+resource google_dns_managed_zone private {
   name = format("%s-private-zone", local.infrastructure_name)
-  depends_on = [ google_deployment_manager_deployment.cluster_infra ]
+  depends_on = [ google_deployment_manager_deployment.vpc ]
+
+  dns_name = "${local.cluster_domain}."
+
+  visibility = "private"
+
+  private_visibility_config {
+    networks {
+      network_url = data.google_compute_network.cluster.self_link
+    }
+  }
+
+  force_destroy = true
 }
 
 data google_compute_instance master {
@@ -23,11 +35,11 @@ data google_compute_address public {
 resource google_dns_record_set etcd_a_records {
   count = 3
 
-  name = format("etcd-%d.%s", count.index, data.google_dns_managed_zone.private.dns_name)
+  name = format("etcd-%d.%s", count.index, google_dns_managed_zone.private.dns_name)
 
   depends_on = [ google_deployment_manager_deployment.cluster_master_nodes ]
 
-  managed_zone = data.google_dns_managed_zone.private.name
+  managed_zone = google_dns_managed_zone.private.name
 
   type = "A"
   ttl  = 60
@@ -36,26 +48,26 @@ resource google_dns_record_set etcd_a_records {
 }
 
 resource google_dns_record_set etcd_srv_record {
-  name = format("_etcd-server-ssl._tcp.%s", data.google_dns_managed_zone.private.dns_name)
+  name = format("_etcd-server-ssl._tcp.%s", google_dns_managed_zone.private.dns_name)
 
-  managed_zone = data.google_dns_managed_zone.private.name
+  managed_zone = google_dns_managed_zone.private.name
 
   type = "SRV"
   ttl  = 60
 
   rrdatas = [
-    for index, name in [ "etcd-0", "etcd-1", "etcd-2" ] : format("0 10 2380 %s.%s", name, data.google_dns_managed_zone.private.dns_name)
+    for index, name in [ "etcd-0", "etcd-1", "etcd-2" ] : format("0 10 2380 %s.%s", name, google_dns_managed_zone.private.dns_name)
   ]
 }
 
 resource google_dns_record_set api_private_a_records {
   for_each = toset([ "api", "api-int" ])
 
-  name = format("%s.%s", each.value, data.google_dns_managed_zone.private.dns_name)
+  name = format("%s.%s", each.value, google_dns_managed_zone.private.dns_name)
 
   depends_on = [ google_deployment_manager_deployment.cluster_infra ]
 
-  managed_zone = data.google_dns_managed_zone.private.name
+  managed_zone = google_dns_managed_zone.private.name
 
   type = "A"
   ttl  = 60
