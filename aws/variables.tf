@@ -14,7 +14,7 @@ variable cluster_name {
 
 variable dns_zone_name {
   type = string
-  default = "openshift-ci-aws.cilium.rock"
+  default = "openshift-ci-aws.cilium.rocks"
 }
 
 variable aws_hosted_zone_id {
