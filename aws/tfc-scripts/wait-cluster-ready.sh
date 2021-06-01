@@ -20,7 +20,7 @@ openshift_disro="${2}"
 openshift_version="${3}"
 cilium_version="${4}"
 
-num_nodes="6" # this code assumes default configuration, i.e. 3 masters and one node per AZ 
+num_nodes="6" # this code assumes default configuration, i.e. 3 masters and one node per AZ
 
 export KUBECONFIG="${script_dir}/${name}.kubeconfig"
 

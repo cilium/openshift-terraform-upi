@@ -115,7 +115,7 @@ resource null_resource ignition_configs {
       var.openshift_version,
       local.config_dir,
       local.worker_machinesets_paths,
-      [ for file in fileset(path.module, "cluster-network-08-cilium-test-*.yaml") : "${abspath(path.module)}/${file}" ],
+      [ for file in fileset(path.module, "manifests/*") : "${abspath(path.module)}/${file}" ],
       length(var.custom_cilium_config_values) > 0 ? [local.custom_cilium_config_path] : [],
     ]))
     environment = var.platform_env
