@@ -10,6 +10,8 @@ set -o nounset
 # name and kubeconfig must be obtained for terraform outputs because
 # in the terraform-controller execution context these files written
 # during provisioning are not available during destruction
+# NB: this only works with kubernetes backend, local backend clears
+# output form state file during destruction
 name="$(terraform output -json cluster_name | jq -r)"
 
 export KUBECONFIG="${name}.kubeconfig"

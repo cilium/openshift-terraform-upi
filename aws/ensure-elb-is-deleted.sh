@@ -11,6 +11,8 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 export AWS_CONFIG_FILE="${script_dir}/aws_config.ini"
 
+# NB: this only works with kubernetes backend, local backend clears
+# output form state file during destruction
 terraform output -json aws_config | jq -r > "${AWS_CONFIG_FILE}"
 aws configure list
 
