@@ -198,18 +198,14 @@ data google_service_account worker {
   account_id = "${local.infrastructure_name}-w"
 }
 
-resource google_project_iam_binding worker_compute_viewer {
-  members = ["serviceAccount:${data.google_service_account.worker.email}"]
-  role = "roles/compute.viewer"
-}
+resource google_project_iam_member worker {
+  for_each = toset([
+    "roles/compute.viewer",
+    "roles/storage.admin",
+  ])
 
-resource google_project_iam_binding storage_admin {
-  # see https://github.com/hashicorp/terraform-provider-google/issues/9225
-  members = [
-    "serviceAccount:${data.google_service_account.worker.email}",
-    "serviceAccount:${data.google_service_account.master.email}",
-  ]
-  role = "roles/storage.admin"
+  member = "serviceAccount:${data.google_service_account.worker.email}"
+  role = each.value
 }
 
 data google_service_account master {
@@ -228,24 +224,17 @@ resource local_file master_service_account_key {
   filename = format("%s/config/%s/input/master-sa.json", abspath(path.module), var.cluster_name)
 }
 
-resource google_project_iam_binding master_compute_instance_admin {
-  members = ["serviceAccount:${data.google_service_account.master.email}"]
-  role = "roles/compute.instanceAdmin"
-}
+resource google_project_iam_member master {
+  for_each = toset([
+    "roles/storage.admin",
+    "roles/compute.instanceAdmin",
+    "roles/compute.networkAdmin",
+    "roles/compute.securityAdmin",
+    "roles/iam.serviceAccountUser",
+  ])
 
-resource google_project_iam_binding master_compute_network_admin {
-  members = ["serviceAccount:${data.google_service_account.master.email}"]
-  role = "roles/compute.networkAdmin"
-}
-
-resource google_project_iam_binding master_compute_security_admin {
-  members = ["serviceAccount:${data.google_service_account.master.email}"]
-  role = "roles/compute.securityAdmin"
-}
-
-resource google_project_iam_binding master_iam_service_account_user {
-  members = ["serviceAccount:${data.google_service_account.master.email}"]
-  role = "roles/iam.serviceAccountUser"
+  member = "serviceAccount:${data.google_service_account.master.email}"
+  role = each.value
 }
 
 resource google_deployment_manager_deployment cluster_bootstrap {
