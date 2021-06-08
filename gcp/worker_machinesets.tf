@@ -1,6 +1,6 @@
 locals {
   worker_machinesets = [
-    for index, subnet in local.private_subnets_list : {
+    for index, zone in local.zones : {
       apiVersion = "machine.openshift.io/v1beta1"
       kind = "MachineSet"
       metadata = {
@@ -12,7 +12,7 @@ locals {
         namespace = "openshift-machine-api"
       }
       spec = {
-        replicas = var.compute_machines_per_az
+        replicas = var.compute_machines_per_zone
         selector = {
           matchLabels = {
             "machine.openshift.io/cluster-api-cluster" = local.infrastructure_name
@@ -31,28 +31,39 @@ locals {
           spec = {
             providerSpec = {
               value = {
-                apiVersion = "awsproviderconfig.openshift.io/v1beta1"
-                kind = "AWSMachineProviderConfig"
+                apiVersion = "gcpprovider.openshift.io/v1beta1"
+                kind = "GCPMachineProviderSpec"
 
-                placement = { region = var.aws_region }
+                projectID = var.gcp_project
+                region = var.gcp_region
+                zone = zone
 
-                instanceType = var.compute_instance_type
+                machineType = var.compute_machine_type
 
-                ami = { id = local.rhcos_image }
-                blockDevices = [{
-                  ebs = {
-                    encrypted = true
-                    volumeSize = var.compute_root_volume_size
-                    volumeType = var.compute_root_volume_type
-                    iops = var.compute_root_volume_iops
-                  }
+                disks = [{
+                  autoDelete = true
+                  boot = true
+                  image = local.rhcos_image
+                  labels = null
+                  sizeGb = var.compute_root_volume_size
+                  type = var.compute_root_volume_type
                 }]
 
-                iamInstanceProfile = { id = aws_cloudformation_stack.cluster_security.outputs["WorkerInstanceProfile"] }
-                securityGroups = [{ id = local.worker_sg }]
-                subnet =  { id = subnet }
+                serviceAccounts = [{
+                  email = data.google_service_account.worker.email
+                  scopes = [ "https://www.googleapis.com/auth/cloud-platform" ]
+                }]
 
-                credentialsSecret = { name = "aws-cloud-credentials" }
+                tags = [ "${local.infrastructure_name}-worker" ]
+                networkInterfaces = [{
+                  network = "${local.infrastructure_name}-network"
+                  subnetwork = "${local.infrastructure_name}-worker-subnet"
+                }]
+                canIPForward = false
+
+                deletionProtection = false
+
+                credentialsSecret = { name = "gcp-cloud-credentials" }
                 userDataSecret = { name = "worker-user-data" }
               }
             }
