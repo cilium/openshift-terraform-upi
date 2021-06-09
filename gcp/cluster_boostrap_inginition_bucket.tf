@@ -7,7 +7,7 @@ resource google_storage_bucket cluster_boostrap_inginition_bucket {
 resource google_storage_bucket_object cluster_boostrap_inginition_object {
   name = "bootstrap.ign"
   bucket = google_storage_bucket.cluster_boostrap_inginition_bucket.name
-  content = module.openshift_install_config.bootstrap_ign
+  content = module.common.bootstrap_ign
 }
 
 data google_storage_object_signed_url cluster_boostrap_inginition_object_signed_url {

@@ -1,5 +1,5 @@
-module openshift_install_config {
-  source = "../openshift_install_config"
+module common {
+  source = "../common"
 
   cilium_version = var.cilium_version
   custom_cilium_config_values = var.custom_cilium_config_values
@@ -26,8 +26,8 @@ module openshift_install_config {
 }
 
 locals {
-  infrastructure_name = module.openshift_install_config.infrastructure_name
-  rhcos_image = module.openshift_install_config.rhcos_image
+  infrastructure_name = module.common.infrastructure_name
+  rhcos_image = module.common.rhcos_image
 }
 
 module deployment_manager_configs {

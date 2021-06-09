@@ -355,7 +355,7 @@ resource google_deployment_manager_deployment cluster_master_nodes {
             zones = local.zones
 
             image = local.rhcos_image
-            ignition = module.openshift_install_config.master_ign
+            ignition = module.common.master_ign
 
             machine_type = var.control_plane_machine_type
             root_volume_size = var.control_plane_root_volume_size

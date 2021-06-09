@@ -4,5 +4,5 @@ module cilium_olm {
 }
 
 locals {
-  cilium_olm = format("%s/.terraform/modules/openshift_install_config.cilium_olm", abspath(path.root))
+  cilium_olm = format("%s/.terraform/modules/common.cilium_olm", abspath(path.root))
 }

@@ -125,7 +125,7 @@ resource aws_cloudformation_stack cluster_master_nodes {
     PrivateHostedZoneId = aws_cloudformation_stack.cluster_infra.outputs["PrivateHostedZoneId"]
     PrivateHostedZoneName = format("%s.%s", var.cluster_name, var.dns_zone_name)
 
-    CertificateAuthorities = module.openshift_install_config.master_ca
+    CertificateAuthorities = module.common.master_ca
 
     MasterInstanceProfileName = aws_cloudformation_stack.cluster_security.outputs["MasterInstanceProfile"]
 
