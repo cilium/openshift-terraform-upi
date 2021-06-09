@@ -7,20 +7,22 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+original_pwd="$(pwd)"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "${script_dir}"
 
-if [ "$#" -ne 4 ] ; then
-  echo "$0 supports exactly 4 argument"
-  echo "example: '$0 test-1 ocp 4.6.18 1.9.5'"
+if [ "$#" -ne 5 ] ; then
+  echo "$0 supports exactly 5 argument"
+  echo "example: '$0 test-1 aws/execution.sh ocp 4.6.18 1.9.5'"
   exit 1
 fi
 
 name="${1}"
-openshift_distro="${2}"
-openshift_version="${3}"
-cilium_version="${4}"
+execution_template_path="${2}"
+openshift_distro="${3}"
+openshift_version="${4}"
+cilium_version="${5}"
 
 namespace="terraform-system"
 execution_name="openshift-ci-${name}"
@@ -82,30 +84,11 @@ container_status() {
   return "${exit_code}"
 }
 
-kubectl create --namespace="${namespace}" --filename="-" << EOF
-apiVersion: terraform.cilium.io/v1alpha1
-kind: Execution
-metadata:
-  name: ${execution_name}
-  namespace: ${namespace}
-spec:
-  moduleRef:
-    kind: Module
-    name: openshift-upi-aws
-  image: docker.io/errordeveloper/terraform-runner:8911108
-  submodulePath: aws
-  interval: 20s
-  jobBackoffLimit: 2
-  convertVarsToSnakeCase: false
-  variables:
-    secretNames:
-      - aws-cluster-secret
-    extraVars:
-      cluster_name: ${name}
-      openshift_version: ${openshift_version}
-      openshift_distro: ${openshift_distro}
-      cilium_version: ${cilium_version}
-EOF
+if [ -e "${original_pwd}/${execution_template_path}" ] ; then
+  source "${original_pwd}/${execution_template_path}"
+else
+  source "${execution_template_path}"
+fi
 
 wait_for_job
 
