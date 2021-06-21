@@ -1,6 +1,6 @@
 module cilium_olm {
   # this needs to be kept up-to-date as new Cilium releases get added to the repo
-  source = "git::https://github.com/cilium/cilium-olm.git?ref=ae233fd9433f29a14c165435fcedcf16a635cd3e"
+  source = "git::https://github.com/cilium/cilium-olm.git?ref=5d31d493f7d0d60454dca19ef0f938f4631a86ff"
 }
 
 locals {
