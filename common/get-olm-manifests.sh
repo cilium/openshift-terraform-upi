@@ -25,6 +25,6 @@ mkdir -p "${config_dir}"
 
 tar -C "${temp_dir}" -xf "${temp_file}"
 
-mv ${temp_dir}/cilium-olm-${cilium_olm_rev}/manifests/cilium.v${cilium_version}/* "${config_dir}"
+mv -v ${temp_dir}/cilium-olm-${cilium_olm_rev}/manifests/cilium.v${cilium_version}/* "${config_dir}"
 
 rm -rf "${temp_file}" "${temp_dir}"
