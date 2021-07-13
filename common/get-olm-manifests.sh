@@ -25,6 +25,15 @@ mkdir -p "${config_dir}"
 
 tar -C "${temp_dir}" -xf "${temp_file}"
 
-mv -v ${temp_dir}/cilium-olm-${cilium_olm_rev}/manifests/cilium.v${cilium_version}/* "${config_dir}"
+cd "${temp_dir}/cilium-olm-${cilium_olm_rev}/manifests/cilium.v${cilium_version}"
 
+manifests=($(ls *.yaml))
+
+for manifest in "${manifests[@]}" ; do
+  mv "${manifest}" "${config_dir}"
+done
+
+cd -
 rm -rf "${temp_file}" "${temp_dir}"
+
+echo "wrote ${#manifests[@]} manifests to ${config_dir}: ${manifests[@]}"
