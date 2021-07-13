@@ -39,7 +39,7 @@ resource local_file custom_cilium_config {
       name = "cilium"
       namespace = "cilium"
     }
-    spec = merge(local.cilium_config_values, var.custom_cilium_config_values)
+    spec = merge(yamldecode(data.local_file.cilium_config.content)["spec"], var.custom_cilium_config_values)
   })
 
   filename = local.custom_cilium_config_path
@@ -163,7 +163,9 @@ data local_file kubeadmin_password {
 }
 
 data local_file cilium_config {
-  filename = format("%s/manifests/cilium.v%s/cluster-network-07-cilium-ciliumconfig.yaml", local.cilium_olm, var.cilium_version)
+  depends_on = [ null_resource.manifests ]
+
+  filename = format("%s/manifests/cluster-network-07-cilium-ciliumconfig.yaml", local.config_dir)
 }
 
 resource local_file worker_machinesets {
@@ -183,8 +185,6 @@ locals {
 
   infrastructure_name = jsondecode(data.local_file.openshift_install_state_json.content)["*installconfig.ClusterID"]["InfraID"]
   rhcos_image = jsondecode(data.local_file.openshift_install_state_json.content)["*rhcos.Image"]
-
-  cilium_config_values = yamldecode(data.local_file.cilium_config.content)["spec"]
 
   worker_ca = jsondecode(data.local_file.master_ign.content).ignition.security.tls.certificateAuthorities[0].source
   master_ca = jsondecode(data.local_file.worker_ign.content).ignition.security.tls.certificateAuthorities[0].source
