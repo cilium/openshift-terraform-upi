@@ -37,4 +37,4 @@ cd -
 rm -rf "${temp_file}" "${temp_dir}"
 
 echo "wrote ${#manifests[@]} manifests to ${config_dir}: ${manifests[@]}"
-echo "all files in ${config_dir}: $(ls "${config_dir})"
+echo "all files in ${config_dir}: $(ls "${config_dir}")"
