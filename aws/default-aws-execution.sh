@@ -8,7 +8,7 @@ spec:
   moduleRef:
     kind: Module
     name: openshift-upi-aws
-  image: docker.io/errordeveloper/terraform-runner:8911108
+  image: docker.io/errordeveloper/terraform-runner:d7bed26
   submodulePath: aws
   interval: 20s
   jobBackoffLimit: 2
