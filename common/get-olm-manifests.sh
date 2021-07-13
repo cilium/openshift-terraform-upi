@@ -20,17 +20,14 @@ temp_dir="$(mktemp -d)"
 
 curl --silent --location --fail --show-error "https://github.com/${cilium_olm_repo}/archive/${cilium_olm_rev}.tar.gz" --output "${temp_file}"
 
-rm -rf "${config_dir}"
-mkdir -p "${config_dir}"
-
 tar -C "${temp_dir}" -xf "${temp_file}"
 
 cd "${temp_dir}/cilium-olm-${cilium_olm_rev}/manifests/cilium.v${cilium_version}"
 
-manifests=($(ls *.yaml))
+manifests=($(ls))
 
 for manifest in "${manifests[@]}" ; do
-  mv "${manifest}" "${config_dir}"
+  mv -v "${manifest}" "${config_dir}"
 done
 
 cd -
