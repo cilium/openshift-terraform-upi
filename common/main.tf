@@ -163,7 +163,7 @@ data local_file kubeadmin_password {
 }
 
 data local_file cilium_config {
-  depends_on = [ null_resource.manifests ]
+  depends_on = [ null_resource.cilium_manifests ]
 
   filename = format("%s/manifests/cluster-network-07-cilium-ciliumconfig.yaml", local.config_dir)
 }
