@@ -85,11 +85,13 @@ resource null_resource cilium_manifests {
 
   triggers = {
     cilium_version = var.cilium_version
+    cilium_olm_repo = var.cilium_olm_repo
+    cilium_olm_rev = var.cilium_olm_rev
     manifests = null_resource.manifests.id
   }
 
   provisioner "local-exec" {
-    command = "cp ${local.cilium_olm}/manifests/cilium.v${var.cilium_version}/* ${local.config_dir}/manifests"
+    command = "${local.script_get_olm_manifests} ${var.cilium_olm_repo} ${var.cilium_olm_rev} ${var.cilium_version} ${local.config_dir}/manifests"
   }
 }
 
@@ -188,6 +190,7 @@ locals {
   master_ca = jsondecode(data.local_file.worker_ign.content).ignition.security.tls.certificateAuthorities[0].source
 
   script_get_openshift_install = format("%s/get-openshift-install.sh", abspath(path.module))
+  script_get_olm_manifests = format("%s/get-olm-manifests.sh", abspath(path.module))
   script_create_manifests = format("%s/openshift-install-create-manifests.sh", abspath(path.module))
   script_create_ignition_configs = format("%s/openshift-install-create-ignition-configs.sh", abspath(path.module))
 
