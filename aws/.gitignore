@@ -3,3 +3,5 @@ aws_config.ini
 terraform.tfstate
 terraform.tfstate.backup
 config
+.terraform.lock.hcl
+pull-secret.txt
