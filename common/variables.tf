@@ -10,7 +10,7 @@ variable cilium_olm_repo {
 variable cilium_olm_rev {
   type = string
   # this needs to be kept up-to-date as new Cilium releases get added to the repo
-  default = "37ec9a4c3e1adecfc6fdee2a7b3351d1faf20687"
+  default = "3525270a719243eca47f9c1d3bcbc3dfe53eeb73"
 }
 
 variable custom_cilium_config_values {
