@@ -2,6 +2,7 @@ module common {
   source = "../common"
 
   cilium_version = var.cilium_version
+  cilium_olm_repo = var.cilium_olm_repo
   custom_cilium_config_values = var.custom_cilium_config_values
 
   cluster_name = var.cluster_name

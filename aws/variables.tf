@@ -3,6 +3,17 @@ variable cilium_version {
   default = "1.9.7"
 }
 
+variable cilium_olm_repo {
+  type = string
+  default = "cilium/cilium-olm"
+}
+
+variable cilium_olm_rev {
+  type = string
+  # this needs to be kept up-to-date as new Cilium releases get added to the repo
+  default = "3525270a719243eca47f9c1d3bcbc3dfe53eeb73"
+}
+
 variable custom_cilium_config_values {
   type = any
   default = {}
