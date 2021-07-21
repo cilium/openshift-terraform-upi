@@ -226,7 +226,6 @@ locals {
   script_create_ignition_configs = format("%s/openshift-install-create-ignition-configs.sh", abspath(path.module))
 
   worker_machinesets_paths = [ for index, machineset in var.worker_machinesets : format("%s/config/%s/input/worker-machineset-%s.yaml", abspath(path.module), var.cluster_name, index) ]
-
   worker_machinesets_hashes = [ for file in local_file.worker_machinesets : file.id ]
 
   cilium_config_values_without_kube_proxy = (!var.without_kube_proxy) ? {} : {
