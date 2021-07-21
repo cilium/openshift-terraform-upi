@@ -37,6 +37,11 @@ variable openshift_version {
   default = "4.7.11"
 }
 
+variable without_kube_proxy {
+  type = bool
+  default = false
+}
+
 variable compute_machine_type {
   type = string
   default = "n1-standard-4"

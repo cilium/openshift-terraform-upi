@@ -38,6 +38,11 @@ variable openshift_version {
   type = string
 }
 
+variable without_kube_proxy {
+  type = bool
+  default = false
+}
+
 variable platform {
   type = any
   default = {}

@@ -37,6 +37,11 @@ variable openshift_version {
   default = "4.7.11"
 }
 
+variable without_kube_proxy {
+  type = bool
+  default = false
+}
+
 variable compute_instance_type {
   type = string
   default = "m5.large"

@@ -39,10 +39,37 @@ resource local_file custom_cilium_config {
       name = "cilium"
       namespace = "cilium"
     }
-    spec = merge(yamldecode(data.local_file.cilium_config.content)["spec"], var.custom_cilium_config_values)
+    spec = merge(yamldecode(data.local_file.cilium_config.content)["spec"], local.cilium_config_values_without_kube_proxy, var.custom_cilium_config_values)
   })
 
   filename = local.custom_cilium_config_path
+}
+
+resource local_file custom_network_operator_config {
+
+  content = yamlencode({
+    apiVersion = "operator.openshift.io/v1"
+    kind = "Network"
+    metadata = {
+      name = "cluster"
+    }
+    spec = {
+      clusterNetwork = [{
+        cidr = "10.128.0.0/14"
+        hostPrefix = 23
+      }]
+      defaultNetwork = {
+        type = "Cilium"
+      }
+      deployKubeProxy = !var.without_kube_proxy
+      logLevel = "Normal"
+      managementState = "Managed"
+      operatorLogLevel = "Normal"
+      serviceNetwork = [ "172.30.0.0/16" ]
+    }
+  })
+
+  filename = local.custom_network_operator_config_path
 }
 
 resource null_resource get_openshift_install {
@@ -100,6 +127,7 @@ resource null_resource ignition_configs {
     null_resource.cilium_manifests,
     null_resource.get_openshift_install,
     local_file.custom_cilium_config,
+    local_file.custom_network_operator_config,
   ]
 
   triggers = {
@@ -108,6 +136,7 @@ resource null_resource ignition_configs {
     worker_machinesets = join("-", local.worker_machinesets_hashes)
     script_create_ignition_configs = filesha256(local.script_create_ignition_configs)
     custom_cilium_config = local_file.custom_cilium_config.id
+    custom_network_operator_config = local_file.custom_network_operator_config.id
   }
 
   provisioner "local-exec" {
@@ -118,7 +147,8 @@ resource null_resource ignition_configs {
       local.config_dir,
       local.worker_machinesets_paths,
       [ for file in fileset(path.module, "manifests/*") : "${abspath(path.module)}/${file}" ],
-      length(var.custom_cilium_config_values) > 0 ? [local.custom_cilium_config_path] : [],
+      (length(var.custom_cilium_config_values) > 0 || var.without_kube_proxy) ? [local.custom_cilium_config_path] : [],
+      local.custom_network_operator_config_path,
     ]))
     environment = var.platform_env
   }
@@ -181,6 +211,7 @@ resource local_file worker_machinesets {
 locals {
   config_dir = format("%s/config/%s/state", abspath(path.module), var.cluster_name)
   install_config_path = format("%s/config/%s/input/install-config.yaml", abspath(path.module), var.cluster_name)
+  custom_network_operator_config_path = format("%s/config/%s/input/cluster-network-01-operator.yaml", abspath(path.module), var.cluster_name)
   custom_cilium_config_path = format("%s/config/%s/input/cluster-network-07-cilium-ciliumconfig.yaml", abspath(path.module), var.cluster_name)
 
   infrastructure_name = jsondecode(data.local_file.openshift_install_state_json.content)["*installconfig.ClusterID"]["InfraID"]
@@ -195,5 +226,12 @@ locals {
   script_create_ignition_configs = format("%s/openshift-install-create-ignition-configs.sh", abspath(path.module))
 
   worker_machinesets_paths = [ for index, machineset in var.worker_machinesets : format("%s/config/%s/input/worker-machineset-%s.yaml", abspath(path.module), var.cluster_name, index) ]
+
   worker_machinesets_hashes = [ for file in local_file.worker_machinesets : file.id ]
+
+  cilium_config_values_without_kube_proxy = (!var.without_kube_proxy) ? {} : {
+    kubeProxyReplacement = "strict"
+    k8sServiceHost = "api.${var.cluster_name}.${var.dns_zone_name}"
+    k8sServicePort = "6443"
+  }
 }

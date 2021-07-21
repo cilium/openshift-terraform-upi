@@ -12,6 +12,8 @@ module common {
   openshift_distro = var.openshift_distro
   openshift_version = var.openshift_version
 
+  without_kube_proxy = var.without_kube_proxy
+
   platform = {
     gcp = {
       region = var.gcp_region
