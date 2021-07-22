@@ -1,6 +1,6 @@
 variable cilium_version {
   type = string
-  default = "1.9.7"
+  default = "1.10.3"
 }
 
 variable cilium_olm_repo {
