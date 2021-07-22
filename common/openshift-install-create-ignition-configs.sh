@@ -23,7 +23,7 @@ binary="${script_dir}/bin/openshift-install-${distro}-${version}"
 if [ "$#" -gt 0 ] ; then
   extra_manifests=("${@}")
   for i in "${extra_manifests[@]}" ; do cp "${i}" "${manifests_dir}" ; done
-  echo "wrote ${#extra_manifests[@]} extra manifests to ${manifests_dir}: ${extra_manifests[@]}"
+  echo "wrote ${#extra_manifests[@]} extra manifests to ${manifests_dir} from: ${extra_manifests[@]}"
 fi
 
 all_manifests=($(ls "${manifests_dir}"))
