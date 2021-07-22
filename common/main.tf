@@ -48,6 +48,8 @@ resource local_file custom_cilium_config {
   filename = local.custom_cilium_config_path
 }
 
+# when kube-proxy is disabled, the operator needs to access the API (see https://github.com/cilium/cilium-olm/issues/48),
+# in order to do that the only option that is currently viable is to set environment variables;
 # the reason for using JavaScript here is because the merge function is only able to perform a shallow merge
 # and there is no obvious way to set update a field of an object
 data javascript custom_cilium_olm_deployment {
