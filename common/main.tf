@@ -45,6 +45,31 @@ resource local_file custom_cilium_config {
   filename = local.custom_cilium_config_path
 }
 
+data javascript custom_cilium_olm_deployment {
+  source = "var deployment = JSON.parse(deploymentManifest); deployment.spec.template.spec.containers[0].env = deployment.spec.template.spec.containers[0].env.concat(env); deployment" 
+
+    vars = {
+      deploymentManifest = jsonencode(yamldecode(data.local_file.cilium_olm_deployment.content))
+      env = [
+        {
+          name = "KUBERNETES_SERVICE_HOST"
+          value = "api.${var.cluster_name}.${var.dns_zone_name}"
+        },
+        {
+          name = "KUBERNETES_SERVICE_PORT"
+          value = "6443"
+        },
+      ]
+    }
+}
+
+resource local_file custom_cilium_olm_deployment {
+
+  content = yamlencode(data.javascript.custom_cilium_olm_deployment.result)
+
+  filename = local.custom_cilium_olm_deployment_path
+}
+
 resource local_file custom_network_operator_config {
 
   content = yamlencode({
@@ -127,6 +152,7 @@ resource null_resource ignition_configs {
     null_resource.cilium_manifests,
     null_resource.get_openshift_install,
     local_file.custom_cilium_config,
+    local_file.custom_cilium_olm_deployment,
     local_file.custom_network_operator_config,
   ]
 
@@ -148,6 +174,7 @@ resource null_resource ignition_configs {
       local.worker_machinesets_paths,
       [ for file in fileset(path.module, "manifests/*") : "${abspath(path.module)}/${file}" ],
       (length(var.custom_cilium_config_values) > 0 || var.without_kube_proxy) ? [local.custom_cilium_config_path] : [],
+      (var.without_kube_proxy) ? [local.custom_cilium_olm_deployment_path] : [],
       local.custom_network_operator_config_path,
     ]))
     environment = var.platform_env
@@ -198,6 +225,12 @@ data local_file cilium_config {
   filename = format("%s/manifests/cluster-network-07-cilium-ciliumconfig.yaml", local.config_dir)
 }
 
+data local_file cilium_olm_deployment {
+  depends_on = [ null_resource.cilium_manifests ]
+
+  filename = format("%s/manifests/cluster-network-06-cilium-00002-cilium-olm-deployment.yaml", local.config_dir)
+}
+
 resource local_file worker_machinesets {
   for_each = {
     for index, machineset in var.worker_machinesets : "worker-machineset-${index}" => machineset
@@ -213,6 +246,7 @@ locals {
   install_config_path = format("%s/config/%s/input/install-config.yaml", abspath(path.module), var.cluster_name)
   custom_network_operator_config_path = format("%s/config/%s/input/cluster-network-01-operator.yaml", abspath(path.module), var.cluster_name)
   custom_cilium_config_path = format("%s/config/%s/input/cluster-network-07-cilium-ciliumconfig.yaml", abspath(path.module), var.cluster_name)
+  custom_cilium_olm_deployment_path = format("%s/config/%s/input/cluster-network-06-cilium-00002-cilium-olm-deployment.yaml", abspath(path.module), var.cluster_name)
 
   infrastructure_name = jsondecode(data.local_file.openshift_install_state_json.content)["*installconfig.ClusterID"]["InfraID"]
   rhcos_image = jsondecode(data.local_file.openshift_install_state_json.content)["*rhcos.Image"]
