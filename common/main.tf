@@ -39,13 +39,20 @@ resource local_file custom_cilium_config {
       name = "cilium"
       namespace = "cilium"
     }
+    # this might need to be replaced with JavaScript provider if gets any more complex,
+    # e.g. if user-specified values need to be merged with any values added by the module
+    # internally (like anything beyond top-level fields
     spec = merge(yamldecode(data.local_file.cilium_config.content)["spec"], local.cilium_config_values_without_kube_proxy, var.custom_cilium_config_values)
   })
 
   filename = local.custom_cilium_config_path
 }
 
+# the reason for using JavaScript here is because the merge function is only able to perform a shallow merge
+# and there is no obvious way to set update a field of an object
 data javascript custom_cilium_olm_deployment {
+  # it's not currently possible to just pass the object from terrafom and modify it, for some reason fields are marked read-only
+  # that's why JSON data is passed instead
   source = "var deployment = JSON.parse(deploymentManifest); deployment.spec.template.spec.containers[0].env = deployment.spec.template.spec.containers[0].env.concat(env); deployment" 
 
     vars = {
@@ -263,6 +270,8 @@ locals {
   worker_machinesets_hashes = [ for file in local_file.worker_machinesets : file.id ]
 
   cilium_config_values_without_kube_proxy = (!var.without_kube_proxy) ? {} : {
+    # NB: as this passed to merge function, only top-level fields can be set here,
+    # setting anything else can accidentally collide with custom values provided by the user
     kubeProxyReplacement = "strict"
     k8sServiceHost = "api.${var.cluster_name}.${var.dns_zone_name}"
     k8sServicePort = "6443"
