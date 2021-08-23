@@ -14,7 +14,7 @@ cd "${script_dir}"
 
 if [ "$#" -ne 5 ] ; then
   echo "$0 supports exactly 5 argument"
-  echo "example: '$0 test-1 aws/execution.sh ocp 4.6.18 1.9.5'"
+  echo "example: '$0 test-1 aws/default-aws-execution.sh ocp 4.6.18 1.9.5'"
   exit 1
 fi
 
