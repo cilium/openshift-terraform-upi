@@ -34,6 +34,10 @@ tarball="openshift-install-${client_os}-${version}.tar.gz"
 
 url_prefix="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${version}"
 
+if [ "${distro}" = "ocp-dev-preview" ] ; then
+  url_prefix="https://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/${version}"
+fi
+
 if [ "${distro}" = "okd" ] ; then
   url_prefix="https://github.com/openshift/okd/releases/download/${version}"
 fi
