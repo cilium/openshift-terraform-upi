@@ -1,5 +1,5 @@
 module common {
-  source = "../common"
+  source = "./common"
 
   cilium_version = var.cilium_version
   cilium_olm_repo = var.cilium_olm_repo

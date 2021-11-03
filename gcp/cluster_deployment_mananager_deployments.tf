@@ -398,7 +398,7 @@ resource google_deployment_manager_deployment cluster_master_nodes {
   provisioner "local-exec" {
     when = destroy
     # the worker machinesets will block deletion of most resources, so these need to be deleted first
-    command = format("%s/ensure-worker-machinesets-are-deleted.sh", abspath("${path.module}/../common"))
+    command = abspath("${path.module}/common/ensure-worker-machinesets-are-deleted.sh")
   }
 }
 
