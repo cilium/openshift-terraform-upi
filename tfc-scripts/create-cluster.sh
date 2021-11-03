@@ -104,6 +104,6 @@ kubectl --namespace="${namespace}" get secrets "${job_name}" --output="jsonpath=
 
 echo "INFO: wrote ${name}.kubeconfig"
 
-"${script_dir}/wait-cluster-ready.sh" "${name}" "${openshift_distro}" "${openshift_version}" "${cilium_version}"
+KUBECONFIG="${name}.kubeconfig" "${script_dir}/wait-cluster-ready.sh" "${name}" "${openshift_distro}" "${openshift_version}" "${cilium_version}"
 
 bail 0

@@ -7,8 +7,6 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 if [ "$#" -ne 4 ] ; then
   echo "$0 supports exactly 4 argument"
   echo "example: '$0 test-1 ocp 4.6.18 1.9.5'"
@@ -21,8 +19,6 @@ openshift_version="${3}"
 cilium_version="${4}"
 
 num_nodes="6" # this code assumes default configuration, i.e. 3 masters and one node per AZ
-
-export KUBECONFIG="${script_dir}/${name}.kubeconfig"
 
 can_access() {
   kubectl api-versions 2> /dev/null > /dev/null
