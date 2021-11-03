@@ -43,5 +43,5 @@ module cloudformation_templates {
 locals {
   modules_path = format("%s/.terraform/modules", abspath(path.root))
 
-  cloudformation_templates = format("%s/cloudformation_templates/upi/aws/cloudformation", local.modules_path)
+  cloudformation_templates = module.common.installer_aws_path
 }

@@ -44,3 +44,11 @@ output master_ign {
 output worker_ign {
   value = data.local_file.worker_ign.content
 }
+
+output installer_aws_path {
+  value = "${local.installer_path}/upi/aws/cloudformation"
+}
+
+output installer_gcp_path {
+  value = "${local.installer_path}/upi/gcp"
+}

@@ -34,14 +34,8 @@ locals {
   rhcos_image = module.common.rhcos_image
 }
 
-module deployment_manager_configs {
-  # it assumed that these Deployment Manager configs are broadly compatible with any OKD or OCP version, so the revision here
-  # should be just some recent commit and there is no need to map it to openshift_version/openshift_distro
-  source = "git::https://github.com/openshift/installer.git//upi/gcp?ref=a6597edd93133f88bb5280a3cd0660f25e8d77e9"
-}
-
 locals {
   modules_path = format("%s/.terraform/modules", abspath(path.root))
 
-  deployment_manager_configs = format("%s/deployment_manager_configs/upi/gcp", local.modules_path)
+  deployment_manager_configs = module.common.installer_gcp_path
 }
