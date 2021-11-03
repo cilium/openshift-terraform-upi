@@ -100,10 +100,12 @@ if ! container_status ; then
   bail 1
 fi
 
-kubectl --namespace="${namespace}" get secrets "${job_name}" --output="jsonpath={.data.outputFile}" | base64 -d | jq -r .cluster_kubeconfig.value | base64 -d > "${name}.kubeconfig"
+kubeconfig_path="${script_dir}/${name}.kubeconfig"
 
-echo "INFO: wrote ${name}.kubeconfig"
+kubectl --namespace="${namespace}" get secrets "${job_name}" --output="jsonpath={.data.outputFile}" | base64 -d | jq -r .cluster_kubeconfig.value | base64 -d > "${kubeconfig_path}"
 
-KUBECONFIG="${name}.kubeconfig" "${script_dir}/wait-cluster-ready.sh" "${name}" "${openshift_distro}" "${openshift_version}" "${cilium_version}"
+echo "INFO: wrote ${kubeconfig_path}"
+
+KUBECONFIG="${kubeconfig_path}" "${script_dir}/../common/wait-cluster-ready.sh" "${name}" "${openshift_distro}" "${openshift_version}" "${cilium_version}"
 
 bail 0
