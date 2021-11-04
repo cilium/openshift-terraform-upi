@@ -66,7 +66,7 @@ fi
 
 module_path="$(pwd)/${name}"
 
-if [ -n "${FORCE:x}" ] ; then
+if [ -n "${FORCE+x}" ] ; then
   mkdir -p "${module_path}"
 else
   mkdir "${module_path}"
