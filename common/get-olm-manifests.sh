@@ -26,7 +26,7 @@ cd "${temp_dir}/cilium-olm-${cilium_olm_rev}/manifests/cilium.v${cilium_version}
 
 manifests=($(ls))
 
-for manifest in "${manifests[@]}" ; do mv "${manifest}" "${manifests_dir}" ; done
+for manifest in "${manifests[@]}" ; do cp "${manifest}" "${manifests_dir}" ; done
 
 cd -
 rm -rf "${temp_file}" "${temp_dir}"
