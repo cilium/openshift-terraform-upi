@@ -1,0 +1,3 @@
+pull-secret.txt
+dev-scripts/*.kubeconfig
+tfc-scripts/*.kubeconfig
