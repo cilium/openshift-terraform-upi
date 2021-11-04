@@ -94,7 +94,7 @@ terraform apply -auto-approve
 
 kubeconfig_path="${script_dir}/${name}.kubeconfig"
 
-terrafrom output -raw cluster_kubeconfig | base64 -d > "${kubeconfig_path}"
+terraform output -raw cluster_kubeconfig | base64 -d > "${kubeconfig_path}"
 
 echo "INFO: wrote ${kubeconfig_path}"
 
