@@ -65,7 +65,12 @@ if [ -n "${extra_params_file+x}" ] ; then
 fi
 
 module_path="$(pwd)/${name}"
-mkdir "${module_path}"
+
+if [ -n "${FORCE:x}" ] ; then
+  mkdir -p "${module_path}"
+else
+  mkdir "${module_path}"
+fi
 
 cat > "${module_path}/main.tf" <<EOF
 module cluster {
