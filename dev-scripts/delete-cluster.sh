@@ -9,7 +9,7 @@ set -o nounset
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-if [ "$#" -eq 1 ] ; then
+if [ "$#" -ne 1 ] ; then
   echo "$0 supports exactl one argument"
   echo "example: '$0 test-1'"
   exit 1
