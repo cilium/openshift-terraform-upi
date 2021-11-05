@@ -55,7 +55,7 @@ resource local_file custom_cilium_config {
 data javascript custom_cilium_olm_deployment {
   # it's not currently possible to just pass the object from terrafom and modify it, for some reason fields are marked read-only
   # that's why JSON data is passed instead
-  source = "var deployment = JSON.parse(deploymentManifest); deployment.spec.template.spec.containers[0].env = deployment.spec.template.spec.containers[0].env.concat(env); deployment" 
+  source = "var deployment = JSON.parse(deploymentManifest); deployment.spec.template.spec.containers[0].env = deployment.spec.template.spec.containers[0].env.concat(env); deployment"
 
     vars = {
       deploymentManifest = jsonencode(yamldecode(data.local_file.cilium_olm_deployment.content))
@@ -152,7 +152,7 @@ resource null_resource cilium_manifests {
   }
 
   provisioner "local-exec" {
-    command = "${local.script_get_olm_manifests} ${var.cilium_olm_repo} ${var.cilium_olm_rev} ${var.cilium_version} ${local.config_dir}/manifests"
+    command = "${local.script_get_olm_manifests} ${var.cilium_olm_repo} ${var.cilium_olm_rev} ${var.cilium_version} ${local.manifests_dir} ${local.manifests_persist_dir}"
   }
 }
 
@@ -231,13 +231,13 @@ data local_file kubeadmin_password {
 data local_file cilium_config {
   depends_on = [ null_resource.cilium_manifests ]
 
-  filename = format("%s/manifests/cluster-network-07-cilium-ciliumconfig.yaml", local.config_dir)
+  filename = format("%s/cluster-network-07-cilium-ciliumconfig.yaml", local.manifests_persist_dir)
 }
 
 data local_file cilium_olm_deployment {
   depends_on = [ null_resource.cilium_manifests ]
 
-  filename = format("%s/manifests/cluster-network-06-cilium-00002-cilium-olm-deployment.yaml", local.config_dir)
+  filename = format("%s/cluster-network-06-cilium-00002-cilium-olm-deployment.yaml", local.manifests_persist_dir)
 }
 
 resource local_file worker_machinesets {
@@ -247,15 +247,20 @@ resource local_file worker_machinesets {
 
   content = yamlencode(each.value)
 
-  filename = format("%s/config/%s/input/%s.yaml", abspath(path.module), var.cluster_name, each.key)
+  filename = format("%s/%s.yaml", local.input_dir, each.key)
 }
 
 locals {
+  input_dir = format("%s/config/%s/input", abspath(path.module), var.cluster_name)
+  manifests_persist_dir = format("%s/manifests", local.input_dir)
+
   config_dir = format("%s/config/%s/state", abspath(path.module), var.cluster_name)
-  install_config_path = format("%s/config/%s/input/install-config.yaml", abspath(path.module), var.cluster_name)
-  custom_network_operator_config_path = format("%s/config/%s/input/cluster-network-01-operator.yaml", abspath(path.module), var.cluster_name)
-  custom_cilium_config_path = format("%s/config/%s/input/cluster-network-07-cilium-ciliumconfig.yaml", abspath(path.module), var.cluster_name)
-  custom_cilium_olm_deployment_path = format("%s/config/%s/input/cluster-network-06-cilium-00002-cilium-olm-deployment.yaml", abspath(path.module), var.cluster_name)
+  manifests_dir = format("%s/manifests", local.config_dir)
+
+  install_config_path = format("%s/install-config.yaml", local.input_dir)
+  custom_network_operator_config_path = format("%s/cluster-network-01-operator.yaml", local.input_dir)
+  custom_cilium_config_path = format("%s/cluster-network-07-cilium-ciliumconfig.yaml", local.input_dir)
+  custom_cilium_olm_deployment_path = format("%s/cluster-network-06-cilium-00002-cilium-olm-deployment.yaml", local.input_dir)
 
   infrastructure_name = jsondecode(data.local_file.openshift_install_state_json.content)["*installconfig.ClusterID"]["InfraID"]
   rhcos_image = jsondecode(data.local_file.openshift_install_state_json.content)["*rhcos.Image"]
@@ -268,7 +273,7 @@ locals {
   script_create_manifests = format("%s/openshift-install-create-manifests.sh", abspath(path.module))
   script_create_ignition_configs = format("%s/openshift-install-create-ignition-configs.sh", abspath(path.module))
 
-  worker_machinesets_paths = [ for index, machineset in var.worker_machinesets : format("%s/config/%s/input/worker-machineset-%s.yaml", abspath(path.module), var.cluster_name, index) ]
+  worker_machinesets_paths = [ for index, machineset in var.worker_machinesets : format("%s/worker-machineset-%s.yaml", local.input_dir, index) ]
   worker_machinesets_hashes = [ for file in local_file.worker_machinesets : file.id ]
 
   cilium_config_values_without_kube_proxy = (!var.without_kube_proxy) ? {} : {

@@ -14,6 +14,7 @@ cilium_olm_repo="${1}"
 cilium_olm_rev="${2}"
 cilium_version="${3}"
 manifests_dir="${4}"
+manifests_persist_dir="${5}"
 
 temp_file="$(mktemp)"
 temp_dir="$(mktemp -d)"
@@ -27,6 +28,8 @@ cd "${temp_dir}/cilium-olm-${cilium_olm_rev}/manifests/cilium.v${cilium_version}
 manifests=($(ls))
 
 for manifest in "${manifests[@]}" ; do cp "${manifest}" "${manifests_dir}" ; done
+
+cp -a "${manifests_dir}" "${manifests_persist_dir}"
 
 cd -
 rm -rf "${temp_file}" "${temp_dir}"
