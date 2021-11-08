@@ -9,12 +9,15 @@ set -o nounset
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-export AWS_CONFIG_FILE="${script_dir}/aws_config.ini"
-
-# NB: this only works with kubernetes backend, local backend clears
-# output form state file during destruction
-terraform output -json aws_config | jq -r > "${AWS_CONFIG_FILE}"
-aws configure list
+# dev-scripts/delete-cluster.sh sets AWS_ACCESS_KEY_ID & AWS_SECRET_ACCESS_KEY
+# explicilty, so it can be used easily with local backend, becuse outputs are
+# cleared form the state file on deletion...
+if [ -z "${AWS_ACCESS_KEY_ID+x}" ] && [ -z "${AWS_SECRET_ACCESS_KEY+x}" ] ; then
+  export AWS_CONFIG_FILE="${script_dir}/aws_config.ini"
+  # get config from outpus when remote backends are used
+  terraform output -json aws_config | jq -r > "${AWS_CONFIG_FILE}"
+  aws configure list
+fi
 
 vpc_id="${1}"
 elb_desc_json="$(aws elb describe-load-balancers)"

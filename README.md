@@ -75,5 +75,5 @@ EOF
 This script simply deletes the cluster and all local state files associated with it.
 
 ```
-./dev-scripts/create-cluster.sh ilya-test-1
+./dev-scripts/create-cluster.sh ilya-test-1 aws
 ```
