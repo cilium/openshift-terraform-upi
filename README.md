@@ -40,7 +40,7 @@ This script simplifies the setup of module parameters, it runs `terraform apply`
 Basic usage:
 
 ```
-export AWS_ACCESS_KEY_ID=<...> AWS_SECRET_ACCESS_KEY=<...>
+export AWS_DEFAULT_REGION=<...> AWS_ACCESS_KEY_ID=<...> AWS_SECRET_ACCESS_KEY=<...>
 ./dev-scripts/create-cluster.sh ilya-test-1 aws ocp 4.6.18 1.10.3
 ```
 

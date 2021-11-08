@@ -39,11 +39,11 @@ pull_secret="$(cat "${script_dir}/pull-secret.txt")"
 cloud_provider_params=""
 case "${cloud_provider}" in
   aws)
-    if [ -z "${AWS_ACCESS_KEY_ID+x}" ] || [ -z "${AWS_SECRET_ACCESS_KEY+x}" ] ; then
-      echo "AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be set"
+    if [ -z "${AWS_DEFAULT_REGION+x}" ] || [ -z "${AWS_ACCESS_KEY_ID+x}" ] || [ -z "${AWS_SECRET_ACCESS_KEY+x}" ] ; then
+      echo "AWS_DEFAULT_REGION, AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be set"
       exit 3
     fi
-    cloud_provider_params="$(printf 'aws_access_key = "%s"\naws_secret_key = "%s"\n' "${AWS_ACCESS_KEY_ID}" "${AWS_SECRET_ACCESS_KEY}")"
+    cloud_provider_params="$(printf 'aws_region = "%s"\naws_access_key = "%s"\naws_secret_key = "%s"\n' "${AWS_DEFAULT_REGION}" "${AWS_ACCESS_KEY_ID}" "${AWS_SECRET_ACCESS_KEY}")"
     ;;
   gcp)
     if [ -z "${GOOGLE_CREDENTIALS+x}" ] ; then
