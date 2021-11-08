@@ -206,6 +206,7 @@ resource google_project_iam_member worker {
 
   member = "serviceAccount:${data.google_service_account.worker.email}"
   role = each.value
+  project = var.gcp_project
 }
 
 data google_service_account master {
@@ -235,6 +236,7 @@ resource google_project_iam_member master {
 
   member = "serviceAccount:${data.google_service_account.master.email}"
   role = each.value
+  project = var.gcp_project
 }
 
 resource google_deployment_manager_deployment cluster_bootstrap {
