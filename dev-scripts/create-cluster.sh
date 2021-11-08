@@ -32,6 +32,10 @@ if ! [ -f "${script_dir}/pull-secret.txt" ] ; then
 fi
 pull_secret="$(cat "${script_dir}/pull-secret.txt")"
 
+# OpenShift makes a copy of clould provider credentials, hence these cannot
+# be handled in a way that Terraform would handle them normally; in particular
+# AWS session credentials will not work and for GCP a service account must be
+# used...
 cloud_provider_params=""
 case "${cloud_provider}" in
   aws)
