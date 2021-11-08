@@ -46,11 +46,11 @@ case "${cloud_provider}" in
     cloud_provider_params="$(printf 'aws_region = "%s"\naws_access_key = "%s"\naws_secret_key = "%s"\n' "${AWS_DEFAULT_REGION}" "${AWS_ACCESS_KEY_ID}" "${AWS_SECRET_ACCESS_KEY}")"
     ;;
   gcp)
-    if [ -z "${GOOGLE_CREDENTIALS+x}" ] ; then
-      echo "GOOGLE_CREDENTIALS must be set"
+    if [ -z "${GCP_PROJECT+x}" ] || [ -z "${GCP_REGION+x}" ] || [ -z "${GOOGLE_CREDENTIALS+x}" ] ; then
+      echo "GCP_REGION, GCP_PROJECT and GOOGLE_CREDENTIALS must be set"
       exit 3
     fi
-    cloud_provider_params="$(printf 'gcp_credentials = "%s"\n' "${GOOGLE_CREDENTIALS}")"
+    cloud_provider_params="$(printf 'gcp_region = "%s"\ngcp_project = "%s"\ngcp_credentials = "%s"\n' "${GCP_PROJECT}" "${GCP_REGION}" "${GOOGLE_CREDENTIALS}")"
     ;;
   *)
     echo "cloud provider ${cloud_provider} is not supported"
