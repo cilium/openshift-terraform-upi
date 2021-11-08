@@ -70,6 +70,12 @@ EOF
 ./dev-scripts/create-cluster.sh ilya-test-2-kpr aws ocp 4.6.18 1.10.3 custom-params-1.tf
 ```
 
+Using GCP instead of AWS:
+```
+export GCP_PROJECT=<...> GCP_REGION=<...> GOOGLE_CREDENTIALS=service_account.json
+./dev-scripts/create-cluster.sh ilya-test-3-gcp gcp ocp 4.6.18 1.10.3
+```
+
 ### Using `dev-scripts/delete-cluster.sh`
 
 This script simply deletes the cluster and all local state files associated with it.
