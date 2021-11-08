@@ -96,6 +96,27 @@ ${extra_params}
 }
 EOF
 
+cat > "${module_path}/outputs.tf" <<EOF
+output cluster_name {
+  value = module.cluster.cluster_name
+}
+
+output cluster_kubeconfig {
+  value = module.cluster.cluster_kubeconfig
+  sensitive = true
+}
+
+output cluster_kubeadmin_password {
+  value = module.cluster.cluster_kubeadmin_password
+  sensitive = true
+}
+
+output cluster_ssh_key {
+  value = module.cluster.cluster_ssh_key
+  sensitive = true
+}
+EOF
+
 cd "${module_path}"
 
 terraform init
