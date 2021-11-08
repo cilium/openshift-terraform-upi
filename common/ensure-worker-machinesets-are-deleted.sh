@@ -38,6 +38,16 @@ has_zero_machines() {
 
 echo "INFO: scaling down all worker machinesets..."
 
+# make sure masters are schedulable, so that all workers can be drained
+kubectl apply -f - <<EOF
+apiVersion: config.openshift.io/v1
+kind: Scheduler
+metadata:
+  name: cluster
+spec:
+  mastersSchedulable: true
+EOF
+
 if scale_down_worker_machinesets ; then
   echo "INFO: waiting for machines to be deleted..."
   until has_zero_machines ; do sleep 0.5 ; done
