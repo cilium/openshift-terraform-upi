@@ -34,4 +34,4 @@ fi
 CLUSTER_KUBECONFIG="${kubeconfig_path}" terraform destroy -auto-approve
 
 rm -f "${kubeconfig_path}"
-rm -rf "${module_path}
+rm -rf "${module_path}"
