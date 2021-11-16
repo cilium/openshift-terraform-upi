@@ -37,6 +37,10 @@ However, there are a few convenient scripts provided for certain use-cases.
 
 This script simplifies the setup of module parameters, it runs `terraform apply`, waits for cluster to become ready and extracts `kubeconfig` file.
 
+> Note: you probably want use latest OpenShift patch release version, to do that you can visit the following links:
+> - [OCP CI release status page (amd64)](https://amd64.ocp.releases.ci.openshift.org)
+> - [OKD release page on GitHub](https://github.com/openshift/okd/releases)
+
 Basic usage:
 
 ```
