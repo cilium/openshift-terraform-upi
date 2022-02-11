@@ -1,6 +1,5 @@
 resource aws_s3_bucket cluster_boostrap_inginition_bucket {
   bucket = local.cluster_boostrap_inginition_bucket_name
-  acl    = "private"
 
   tags = local.common_tags
 }
@@ -24,11 +23,12 @@ resource aws_s3_bucket_policy cluster_boostrap_inginition_bucket {
   })
 }
 
-resource aws_s3_bucket_object cluster_boostrap_inginition_object {
+resource aws_s3_object cluster_boostrap_inginition_object {
   key    = "bootstrap.ign"
   bucket = aws_s3_bucket.cluster_boostrap_inginition_bucket.id
   content = module.common.bootstrap_ign
 }
+
 
 # VPC Endpoint is being used to enable EC2 instances to access the bucket and avoid having to either
 # fork CloudFormation templates or make the bucket publically accessible
