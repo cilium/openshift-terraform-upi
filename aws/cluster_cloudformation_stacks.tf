@@ -63,7 +63,7 @@ resource aws_cloudformation_stack cluster_security {
 resource aws_cloudformation_stack cluster_bootstrap {
   name = format("openshift-ci-%s-cluster-bootstrap", local.infrastructure_name)
 
-  depends_on = [ aws_s3_bucket_object.cluster_boostrap_inginition_object ]
+  depends_on = [ aws_s3_object.cluster_boostrap_inginition_object ]
 
   template_body = file(format("%s/04_cluster_bootstrap.yaml", local.cloudformation_templates))
 
