@@ -1,5 +1,8 @@
 ## OpenShift UPI Terraform module for Cilium
 
+> **Warning**
+> This repository has been deprecated. It is being actively maintained [by Isovalent](https://github.com/isovalent/openshift-terraform-upi) now.
+
 This module deploys OpenShift using the official CloudFomation examples for [AWS][ocp_docs_aws] & [GCP][ocp_docs_gcp].
 
 The aim it to delploy [CloudFomation][installer_repo_aws] & [Deployment Manager][installer_repo_gcp] templates from the OpenShift installer repo, without having to fork them and without manually translating them to Terraform.
